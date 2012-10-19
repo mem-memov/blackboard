@@ -1,4 +1,4 @@
-var Server = require("./server/Server");
+var Server = require("./server/Server").Server;
 var server = new Server({
     http: require("http")
 });
