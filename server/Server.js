@@ -1,5 +1,3 @@
-var http = require("http");
-
 var Server = function(options) {
     
     var server = {
@@ -22,7 +20,7 @@ var Server = function(options) {
             response.writeHead(200, {"Content-Type": "text/plain"});
             response.write("Hello World");
             response.end();
-        }).listen("8080", "37.140.195.184");
+        }).listen("8080", "127.0.0.1");
         
         console.log("Server has started.");
 
