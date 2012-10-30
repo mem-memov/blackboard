@@ -2,6 +2,44 @@ function(Blackboard) {
 
 
 
+
+Blackboard.Chalk = function(core) {
+    
+    var chalk = this;
+
+    chalk.init = function(core) {
+        
+        core.isIn(chalk);
+        
+        return {
+            
+        };
+
+    }
+    
+    return chalk.init(core);
+    
+}
+
+Blackboard.Tray = function(core) {
+    
+    var tray = this;
+
+    tray.init = function(core) {
+        
+        core.isIn(tray);
+        
+        return {
+            
+        };
+
+    }
+    
+    return tray.init(core);
+    
+}
+
+
 Blackboard.Lecturer = function(core) {
     
     var lecturer = this;
@@ -9,43 +47,50 @@ Blackboard.Lecturer = function(core) {
     lecturer.init = function(core) {
         
         core.isIn(lecturer);
-        core.defineCollection('boardCollection', 'Board');
-        core.defineMessages('TouchBoard');
-        core.defineEvents('bindEventHandlerToDomElement');
+        core.defineField('facedThing');
+        core.defineField('tool');
+        core.defineField('isTouching');
         
         return {
-            useBoard: lecturer.useBoard
+            face: lecturer.face,
+            touchWithHand: lecturer.touchWithHand,
+            withdrawHand: lecturer.withdrawHand,
+            moveHand: lecturer.moveHand,
+            knockWithHand: lecturer.knockWithHand
         };
 
     }
     
-    lecturer.useBoard = function(domElement) {
+    lecturer.face = function(thing, tool) {
         
-        var board = lecturer.boardCollection.createItem({
-            domElement: domElement
-        });
+        lecturer.facedThing = thing;
+        lecturer.tool = tool;
         
-        lecturer.bindEventHandlerToDomElement({
-            domElement: domElement,
-            event: "onmousedown",
-            handler: function(x, y) { 
-                
-                board.showPath(x, y);
+    }
+    
+    lecturer.touchWithHand = function(x, y) {
+        
+        lecturer.isTouching = true;
+        lecturer.facedThing.startChange(x, y, lecturer.tool);
+        
+    }
+    
+    lecturer.withdrawHand = function(x, y) {
+        
+        lecturer.isTouching = false;
+        lecturer.facedThing.stopChange(x, y, lecturer.tool);
+        
+    }
+    
+    lecturer.moveHand = function(x, y, continueMethod) {
 
-            }
-        });
+        if (lecturer.isTouching) {
+            lecturer.facedThing.continueChange(x, y, lecturer.tool);
+        }
         
-        lecturer.bindEventHandlerToDomElement({
-            domElement: domElement,
-            event: "onmouseup",
-            handler: function(x, y) { 
-                board.stopReacting(x, y);
-            }
-        });
-        
-        //lecturer.touchBoard();
-        
-        board.contact(lecturer.TouchBoard());
+    }
+    
+    lecturer.knockWithHand = function() {
         
     }
     
@@ -60,65 +105,38 @@ Blackboard.Board = function(core) {
     board.init = function(core) {
         
         core.isIn(board);
-        core.defineRequiredField('domElement');
+
         core.defineField('currentPath');
         core.defineCollection('pathCollection', 'Path');
         core.defineEvents(
-            'setDomElementStyle', 
-            'bindEventHandlerToDomElement',
-            'createSvgElement'
+            "blackboardPathHasBeenCreated"
         );
 
-        board.setDomElementStyle({
-            domElement: board.domElement,
-            style: {
-                "background-color": "#003300"
-            }
-        });
      
         return {
-            contact: board.contact,
-            showPath: board.showPath,
-            stopReacting: board.stopReacting
+            startChange: board.startChange,
+            continueChange: board.continueChange,
+            stopChange: board.stopChange
         };
         
     };
     
-    board.showPath = function(x, y) {
-      
-        board.currentPath = board.pathCollection.createItem({
-            x: x,
-            y: y,
-            svgContainer: board.domElement
-        });
-      
-        board.bindEventHandlerToDomElement({
-            domElement: board.domElement,
-            event: "onmousemove",
-            handler: function(x, y) {
- 
-		board.currentPath.addDot(x, y);
-                
-            }
-        });
+    board.startChange = function(x, y, tool) {
+     
+        board.currentPath = board.pathCollection.createItem({});
+
+        board.currentPath.addDot(x, y);
         
     };
     
-    board.stopReacting = function(x, y) {
-        
-        board.bindEventHandlerToDomElement({
-            domElement: board.domElement,
-            event: "onmousemove",
-            handler: function(x, y) {
- 
-		//console.log('stopped');
-                
-            }
-        });
+    board.continueChange = function(x, y, tool) {
+
+        board.currentPath.addDot(x, y);
         
     };
     
-    board.contact = function(contactMessage) {
+    board.stopChange = function(x, y, tool) {
+        
         
         
     };
@@ -134,27 +152,17 @@ Blackboard.Path = function(core) {
     path.init = function(core) {
         
         core.isIn(path);
-        core.defineRequiredField('x');
-        core.defineRequiredField('y');
-        core.defineRequiredField('svgContainer');
-        core.defineField('svgPath');
-        core.defineField('command');
+        core.defineField('dots', []);
         core.defineEvents(
-            'createSvgElement'
+            'blackboardPathHasBeenCreated'
         );
             
-        path.command = "M" + path.x + " " + path.y;
-        
-        path.svgPath = path.createSvgElement({
-            type: "path",
-            attributes: {
-                "d": path.command,
-                "stroke": "white",
-                "stroke-width": 1,
-                "fill": "none",
-                "result": null
-            },
-            container: path.svgContainer
+        path.onDotHandlers = [];
+            
+        path.blackboardPathHasBeenCreated({
+            addOnDotHandler: function(handler) {
+                path.onDotHandlers.push(handler);
+            }
         });
 
         return {
@@ -164,31 +172,41 @@ Blackboard.Path = function(core) {
     };
     
     path.addDot = function(x, y) {
-        path.command += " L" + x + " " + y;
-        path.svgPath.setAttribute("d", path.command);
+        
+        path.dots.push({
+            x: x,
+            y: y
+        });
+        
+        for (var i = 0; i < path.onDotHandlers.length; i++) {
+            path.onDotHandlers[i](x, y);
+        }
+        
     };
 
     return path.init(core);
     
 }
 
-Blackboard.TouchBoard = function() {
+Blackboard.Changable = function(core) {
 
-    var message = this;
+    var changable = this;
     
-    message.init = function() {
-        
-        
+    changable.init = function(core) {
+        core.isIn(changable);
+        core.isInterface();
         
         return {
             
         };
-        
     }
     
-    return message.init();
+    changable.startChange = function(x, y, tool) {}
+    
+    return changable.init(core);
     
 }
+
 
 
 

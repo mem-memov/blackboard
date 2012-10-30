@@ -1,5 +1,6 @@
 var dddCompact = new DddCompact({
     Blackboard: '/client/Blackboard.js',
+    ViewPort: '/client/ViewPort.js',
     Library: '/client/Library.js',
     Persistence: '/client/Persistence.js'
 }, {
@@ -25,6 +26,7 @@ var dddCompact = new DddCompact({
         
     },
     bindEventHandlerToDomElement: function(data, eventBus) {
+        
         var $ = eventBus.makeSingleton("Library", "JQuery");
         switch (data.event) {
             case "onmousemove":
@@ -51,6 +53,13 @@ var dddCompact = new DddCompact({
                     data.handler(e.clientX, e.clientY);
                 });
                 break;
+            case "ondblclick":
+                $(data.domElement).unbind('ondblclick');
+                $(data.domElement).dblclick(function(e) { 
+                    data.handler(e.clientX, e.clientY);
+                });
+                break;
+ 
         }
     },
     createSvgElement: function(data, eventBus, utilities) {
@@ -72,5 +81,44 @@ var dddCompact = new DddCompact({
 
         return element;
         
+    },
+    
+    
+    
+    
+    viewPortLayerHasBeenCreated: function(data, eventBus, utilities) {
+        
+        var 
+            lecturer = eventBus.makeSingleton("Blackboard", "Lecturer"),
+            blackboard = eventBus.makeSingleton("Blackboard", "Board")
+        ;
+
+        lecturer.face(blackboard);
+        
+        eventBus.addHandler("blackboardPathHasBeenCreated", data.createCurve);
+       
+        data.addDownHandler(lecturer.touchWithHand);
+        data.addUpHandler(lecturer.withdrawHand);
+        data.addMoveHandler(lecturer.moveHand);
+        data.addKnockHandler(lecturer.knockWithHand);
+
+    },
+    
+    blackboardPathHasBeenCreated: function(data, eventBus, utilities) {
+        
+        eventBus.handle({
+            addOnDotHandler: data.addOnDotHandler
+        });
+        
+    },
+    
+    blackboardPathHasBeenAugmented: function(data, eventBus, utilities) {
+        
+        eventBus.handle({
+            dots: data.dots
+        });
+        
     }
+    
+    
 });
