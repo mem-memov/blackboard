@@ -2,7 +2,7 @@
 
 window.onload=function() {
     
-    dddCompact.makeItem("ViewPort", "Drawing", {
+    dddCompact.makeInstance("ViewPort", "Drawing", {
         id: 'panel'
     });
 
