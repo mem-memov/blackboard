@@ -157,6 +157,25 @@ Library.Utilities = function() {
 
             return object;
         }
+        utilities.object.applyIf = function(object, config) {
+        /**
+         * Copies all the properties of config to object if they don't already exist.
+         * @param {Object} object The receiver of the properties
+         * @param {Object} config The source of the properties
+         * @return {Object} returns obj
+         */
+            var property;
+
+            if (object) {
+                for (property in config) {
+                    if (object[property] === undefined) {
+                        object[property] = config[property];
+                    }
+                }
+            }
+
+            return object;
+        };
         utilities.object.merge = function(source, key, value) {
         /**
          * Merges any number of objects recursively without referencing them or their children.

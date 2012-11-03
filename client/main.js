@@ -2,8 +2,10 @@
 
 window.onload=function() {
     
-    dddCompact.makeInstance("ViewPort", "Drawing", {
+    var drawing = dddCompact.makeInstance("ViewPort", "Drawing", {
         id: 'panel'
     });
+
+    drawing.publicTestMethod();
 
 };

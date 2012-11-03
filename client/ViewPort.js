@@ -11,8 +11,17 @@ ViewPort.Layer = function(core) {
         
         
         return {
-            
+            publicTestMethod: layer.publicTestMethod
         }
+    }
+    
+    layer.privateTestMethod = function() {
+        console.log("private");
+    }
+    
+    layer.publicTestMethod = function() {
+        console.log("public");
+        layer.privateTestMethod();
     }
     
     return layer.init(core);
@@ -28,10 +37,11 @@ ViewPort.Curve = function(core) {
         core.isIn(curve);
         core.defineRequiredField("container");
         core.defineField("element");
-        
         core.defineEvents(
             "createSvgElement"
         );
+            
+        
 
         return {
             draw: curve.draw
@@ -80,14 +90,14 @@ ViewPort.Drawing = function(core) {
         core.defineRequiredField("id");
         core.defineField("color", "#003300");
         core.defineField("model")
-        
         core.defineEvents(
             "viewPortDrawingHasBeenCreated",
             "bindEventHandlerToDomElement", 
             "createSvgElement",
             "setDomElementStyle"
         );
-            
+        core.defineMixins("Layer");
+        
         drawing.element = null;
         drawing.currentCurve = null;
 
@@ -126,7 +136,7 @@ ViewPort.Drawing = function(core) {
         
         drawing.bindHandlersToEvents(handlers);
 
-        return null;
+        return {};
 
     }
     
@@ -188,7 +198,7 @@ ViewPort.Drawing = function(core) {
     }
     
     drawing.createCurve = function(options) {
-        
+       
         var curve = drawing.curveCollection.createItem({
             container: drawing.element
         });
