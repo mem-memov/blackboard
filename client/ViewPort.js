@@ -79,9 +79,10 @@ ViewPort.Drawing = function(core) {
         core.defineCollection('curveCollection', 'Curve');
         core.defineRequiredField("id");
         core.defineField("color", "#003300");
+        core.defineField("model")
         
         core.defineEvents(
-            "viewPortLayerHasBeenCreated",
+            "viewPortDrawingHasBeenCreated",
             "bindEventHandlerToDomElement", 
             "createSvgElement",
             "setDomElementStyle"
@@ -102,7 +103,7 @@ ViewPort.Drawing = function(core) {
             knock: []
         }
         
-        this.viewPortLayerHasBeenCreated({
+        drawing.viewPortDrawingHasBeenCreated({
             createCurve: drawing.createCurve,
             addDownHandler: function(handler) {
                 handlers.down.push(handler);
@@ -115,8 +116,13 @@ ViewPort.Drawing = function(core) {
             },
             addKnockHandler: function(handler) {
                 handlers.knock.push(handler);
+            },
+            setModel: function(model) {
+                drawing.model = model;
             }
-        })
+        });
+        
+        
         
         drawing.bindHandlersToEvents(handlers);
 

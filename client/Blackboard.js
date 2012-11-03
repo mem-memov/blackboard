@@ -106,12 +106,8 @@ Blackboard.Board = function(core) {
         
         core.isIn(board);
 
-        core.defineField('currentPath');
-        core.defineCollection('pathCollection', 'Path');
-        core.defineEvents(
-            "blackboardPathHasBeenCreated"
-        );
-
+        core.defineField("currentPath");
+        core.defineCollection("pathCollection", "Path");
      
         return {
             startChange: board.startChange,
@@ -152,9 +148,9 @@ Blackboard.Path = function(core) {
     path.init = function(core) {
         
         core.isIn(path);
-        core.defineField('dots', []);
+        core.defineField("dots", []);
         core.defineEvents(
-            'blackboardPathHasBeenCreated'
+            "blackboardPathHasBeenCreated"
         );
             
         path.onDotHandlers = [];
