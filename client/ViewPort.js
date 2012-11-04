@@ -3,9 +3,11 @@ function(ViewPort) {
     
 ViewPort.Layer = function(layer) {
 
-    
+    layer.test = function(a) {
+        console.log("layer " + a);
+    }
     return {
-        
+        test: layer.test
     };
     
 }
@@ -108,7 +110,7 @@ ViewPort.Drawing = function(drawing) {
 
     }
     drawing.createCurve = function(options) {
-       
+
         var curve = drawing.curveCollection.createItem({
             container: drawing.element
         });
@@ -129,7 +131,9 @@ ViewPort.Drawing = function(drawing) {
     );
     drawing.defineMixins("Layer");
     drawing.element = null;
-
+    
+    drawing.defineParent("Layer");
+drawing._parent.test(33345);
     drawing.setElement({
         id: drawing.id,
         color: drawing.color
