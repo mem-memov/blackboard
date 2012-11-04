@@ -3,20 +3,9 @@ function(ViewPort) {
     
 ViewPort.Layer = function(layer) {
 
-    layer.privateTestMethod = function() {
-        console.log("private");
-        console.log(this.height);
-    }
-    
-    layer.publicTestMethod = function(delta) {
-        console.log("public " + delta);
-        this.height += delta;
-        console.log(this.height);
-        layer.privateTestMethod();
-    }
     
     return {
-        publicTestMethod: layer.publicTestMethod
+        
     };
     
 }
@@ -139,7 +128,6 @@ ViewPort.Drawing = function(drawing) {
         "setDomElementStyle"
     );
     drawing.defineMixins("Layer");
-    drawing.height = 777;
     drawing.element = null;
 
     drawing.setElement({
