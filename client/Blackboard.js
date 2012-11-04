@@ -5,24 +5,46 @@ function(Blackboard) {
 
 Blackboard.Chalk = function(chalk) {
     
-    var chalk = this;
+    chalk.init = function() {
+        
+        return {};
+    }
 
     
-    return {};
+    return chalk.init();
     
 }
 
 Blackboard.Tray = function(tray) {
     
-    var tray = this;
+    tray.init = function() {
+        
+        return {};
+    }
 
     
-    return {};
+    return tray.init();
     
 }
 
 
 Blackboard.Lecturer = function(lecturer) {
+    
+    lecturer.init = function() {
+        
+        lecturer.defineField('facedThing');
+        lecturer.defineField('tool');
+        lecturer.defineField('isTouching');
+
+        return {
+            face: lecturer.face,
+            touchWithHand: lecturer.touchWithHand,
+            withdrawHand: lecturer.withdrawHand,
+            moveHand: lecturer.moveHand,
+            knockWithHand: lecturer.knockWithHand
+        };
+        
+    }
 
     lecturer.face = function(thing, tool) {
         
@@ -57,21 +79,24 @@ Blackboard.Lecturer = function(lecturer) {
         
     }
     
-    lecturer.defineField('facedThing');
-    lecturer.defineField('tool');
-    lecturer.defineField('isTouching');
-
-    return {
-        face: lecturer.face,
-        touchWithHand: lecturer.touchWithHand,
-        withdrawHand: lecturer.withdrawHand,
-        moveHand: lecturer.moveHand,
-        knockWithHand: lecturer.knockWithHand
-    };
+    return lecturer.init();
     
 }
 
 Blackboard.Board = function(board) {
+    
+    board.init = function() {
+        
+        board.defineField("currentPath");
+        board.defineCollection("pathCollection", "Path");
+
+        return {
+            startChange: board.startChange,
+            continueChange: board.continueChange,
+            stopChange: board.stopChange
+        };
+        
+    };
 
     board.startChange = function(x, y, tool) {
      
@@ -93,18 +118,32 @@ Blackboard.Board = function(board) {
         
     };
     
-    board.defineField("currentPath");
-    board.defineCollection("pathCollection", "Path");
-
-    return {
-        startChange: board.startChange,
-        continueChange: board.continueChange,
-        stopChange: board.stopChange
-    };
+    return board.init();
     
 }
 
 Blackboard.Path = function(path) {
+    
+    path.init = function() {
+        
+        path.defineField("dots", []);
+        path.defineEvents(
+            "blackboardPathHasBeenCreated"
+        );
+
+        path.onDotHandlers = [];
+
+        path.blackboardPathHasBeenCreated({
+            addOnDotHandler: function(handler) {
+                path.onDotHandlers.push(handler);
+            }
+        });
+
+        return {
+            addDot: path.addDot
+        }
+        
+    };
     
     path.addDot = function(x, y) {
         
@@ -119,22 +158,8 @@ Blackboard.Path = function(path) {
         
     };
 
-    path.defineField("dots", []);
-    path.defineEvents(
-        "blackboardPathHasBeenCreated"
-    );
+    return path.init();
 
-    path.onDotHandlers = [];
-
-    path.blackboardPathHasBeenCreated({
-        addOnDotHandler: function(handler) {
-            path.onDotHandlers.push(handler);
-        }
-    });
-
-    return {
-        addDot: path.addDot
-    }
     
 }
 

@@ -2,16 +2,34 @@ function(ViewPort) {
     
     
 ViewPort.Layer = function(layer) {
+    
+    layer.init = function() {
 
-    
-    
-    return {
+        return{
+            
+        };
         
-    };
+    }
+    
+    return layer.init();
     
 }
     
 ViewPort.Curve = function(curve) {
+    
+    curve.init = function() {
+     
+        curve.defineRequiredField("container");
+        curve.defineField("element");
+        curve.defineEvents(
+            "createSvgElement"
+        );
+
+        return {
+            draw: curve.draw
+        };
+        
+    }
     
     curve.draw = function(x, y) {
      
@@ -38,20 +56,63 @@ ViewPort.Curve = function(curve) {
 
     }
     
-    curve.defineRequiredField("container");
-    curve.defineField("element");
-    curve.defineEvents(
-        "createSvgElement"
-    );
-    
-    return {
-        draw: curve.draw
-    };
+    return curve.init();
     
 }
     
     
 ViewPort.Drawing = function(drawing) {
+    
+    drawing.init = function() {
+       
+        drawing.defineCollection('curveCollection', 'Curve');
+        drawing.defineRequiredField("id");
+        drawing.defineField("color", "#003300");
+        drawing.defineField("model");
+        drawing.defineEvents(
+            "viewPortDrawingHasBeenCreated",
+            "bindEventHandlerToDomElement", 
+            "createSvgElement",
+            "setDomElementStyle"
+        );
+        drawing.element = null;
+
+        drawing.setElement({
+            id: drawing.id,
+            color: drawing.color
+        });
+
+        var handlers = {
+            down: [],
+            up: [],
+            move: [],
+            knock: []
+        }
+
+        drawing.viewPortDrawingHasBeenCreated({
+            createCurve: drawing.createCurve,
+            addDownHandler: function(handler) {
+                handlers.down.push(handler);
+            },
+            addUpHandler: function(handler) {
+                handlers.up.push(handler);
+            },
+            addMoveHandler: function(handler) {
+                handlers.move.push(handler);
+            },
+            addKnockHandler: function(handler) {
+                handlers.knock.push(handler);
+            },
+            setModel: function(model) {
+                drawing.model = model;
+            }
+        });
+
+        drawing.bindHandlersToEvents(handlers);
+
+        return {};
+        
+    }
 
     drawing.setElement = function(options) {
         
@@ -65,6 +126,7 @@ ViewPort.Drawing = function(drawing) {
         });
         
     }
+    
     drawing.bindHandlersToEvents = function(handlers) {
 
         drawing.bindEventHandlerToDomElement({
@@ -108,6 +170,7 @@ ViewPort.Drawing = function(drawing) {
         });
 
     }
+    
     drawing.createCurve = function(options) {
 
         var curve = drawing.curveCollection.createItem({
@@ -117,57 +180,11 @@ ViewPort.Drawing = function(drawing) {
         options.addOnDotHandler(curve.draw);
         
     }
- 
-    drawing.defineCollection('curveCollection', 'Curve');
-    drawing.defineRequiredField("id");
-    drawing.defineField("color", "#003300");
-    drawing.defineField("model");
-    drawing.defineEvents(
-        "viewPortDrawingHasBeenCreated",
-        "bindEventHandlerToDomElement", 
-        "createSvgElement",
-        "setDomElementStyle"
-    );
-    drawing.element = null;
 
-    drawing.setElement({
-        id: drawing.id,
-        color: drawing.color
-    });
 
-    var handlers = {
-        down: [],
-        up: [],
-        move: [],
-        knock: []
-    }
-
-    drawing.viewPortDrawingHasBeenCreated({
-        createCurve: drawing.createCurve,
-        addDownHandler: function(handler) {
-            handlers.down.push(handler);
-        },
-        addUpHandler: function(handler) {
-            handlers.up.push(handler);
-        },
-        addMoveHandler: function(handler) {
-            handlers.move.push(handler);
-        },
-        addKnockHandler: function(handler) {
-            handlers.knock.push(handler);
-        },
-        setModel: function(model) {
-            drawing.model = model;
-        }
-    });
-
-    drawing.bindHandlersToEvents(handlers);
-
-    return {};
+    return drawing.init();
     
 }
-    
-    
     
     
     
