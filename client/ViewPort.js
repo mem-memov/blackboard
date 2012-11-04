@@ -6,8 +6,12 @@ ViewPort.Layer = function(layer) {
     layer.test = function(a) {
         console.log("layer " + a);
     }
+    
+    layer.defineParent("Curve");
+    
     return {
-        test: layer.test
+        test: layer.test,
+        test2: layer.test2
     };
     
 }
@@ -38,6 +42,9 @@ ViewPort.Curve = function(curve) {
         }
 
     }
+    curve.test2 = function(a) {
+        console.log("curve " + a);
+    }
     
     curve.defineRequiredField("container");
     curve.defineField("element");
@@ -46,7 +53,8 @@ ViewPort.Curve = function(curve) {
     );
     
     return {
-        draw: curve.draw
+        draw: curve.draw,
+        test2: curve.test2
     };
     
 }
@@ -110,7 +118,7 @@ ViewPort.Drawing = function(drawing) {
 
     }
     drawing.createCurve = function(options) {
-
+drawing.test2(11111);
         var curve = drawing.curveCollection.createItem({
             container: drawing.element
         });
@@ -118,6 +126,7 @@ ViewPort.Drawing = function(drawing) {
         options.addOnDotHandler(curve.draw);
         
     }
+    //drawing.test = function(){alert(1)}
  
     drawing.defineCollection('curveCollection', 'Curve');
     drawing.defineRequiredField("id");
@@ -129,11 +138,11 @@ ViewPort.Drawing = function(drawing) {
         "createSvgElement",
         "setDomElementStyle"
     );
-    drawing.defineMixins("Layer");
     drawing.element = null;
     
-    drawing.defineParent("Layer");
-drawing._parent.test(33345);
+    drawing.defineParent("Layer", {container: drawing.element});
+    drawing.test(555);
+
     drawing.setElement({
         id: drawing.id,
         color: drawing.color
