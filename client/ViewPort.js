@@ -1,53 +1,27 @@
 function(ViewPort) {
     
     
-ViewPort.Layer = function(core) {
-    
-    var layer = this;
-    
-    layer.init = function(core) {
-        
-        core.isIn(layer);
-        
-        
-        return {
-            publicTestMethod: layer.publicTestMethod
-        }
-    }
-    
+ViewPort.Layer = function(layer) {
+
     layer.privateTestMethod = function() {
         console.log("private");
+        console.log(this.height);
     }
     
-    layer.publicTestMethod = function() {
-        console.log("public");
+    layer.publicTestMethod = function(delta) {
+        console.log("public " + delta);
+        this.height += delta;
+        console.log(this.height);
         layer.privateTestMethod();
     }
     
-    return layer.init(core);
+    return {
+        publicTestMethod: layer.publicTestMethod
+    };
     
 }
     
-ViewPort.Curve = function(core) {
-    
-    var curve = this;
-    
-    curve.init = function(core) {
-        
-        core.isIn(curve);
-        core.defineRequiredField("container");
-        core.defineField("element");
-        core.defineEvents(
-            "createSvgElement"
-        );
-            
-        
-
-        return {
-            draw: curve.draw
-        }
-        
-    }
+ViewPort.Curve = function(curve) {
     
     curve.draw = function(x, y) {
      
@@ -74,72 +48,21 @@ ViewPort.Curve = function(core) {
 
     }
     
-    return curve.init(core);
+    curve.defineRequiredField("container");
+    curve.defineField("element");
+    curve.defineEvents(
+        "createSvgElement"
+    );
+    
+    return {
+        draw: curve.draw
+    };
     
 }
     
     
-ViewPort.Drawing = function(core) {
-    
-    var drawing = this;
+ViewPort.Drawing = function(drawing) {
 
-    drawing.init = function(core) {
-        
-        core.isIn(drawing);
-        core.defineCollection('curveCollection', 'Curve');
-        core.defineRequiredField("id");
-        core.defineField("color", "#003300");
-        core.defineField("model")
-        core.defineEvents(
-            "viewPortDrawingHasBeenCreated",
-            "bindEventHandlerToDomElement", 
-            "createSvgElement",
-            "setDomElementStyle"
-        );
-        core.defineMixins("Layer");
-        
-        drawing.element = null;
-        drawing.currentCurve = null;
-
-        drawing.setElement({
-            id: drawing.id,
-            color: drawing.color
-        });
-        
-        var handlers = {
-            down: [],
-            up: [],
-            move: [],
-            knock: []
-        }
-        
-        drawing.viewPortDrawingHasBeenCreated({
-            createCurve: drawing.createCurve,
-            addDownHandler: function(handler) {
-                handlers.down.push(handler);
-            },
-            addUpHandler: function(handler) {
-                handlers.up.push(handler);
-            },
-            addMoveHandler: function(handler) {
-                handlers.move.push(handler);
-            },
-            addKnockHandler: function(handler) {
-                handlers.knock.push(handler);
-            },
-            setModel: function(model) {
-                drawing.model = model;
-            }
-        });
-        
-        
-        
-        drawing.bindHandlersToEvents(handlers);
-
-        return {};
-
-    }
-    
     drawing.setElement = function(options) {
         
         drawing.element = document.getElementById(options.id); // TODO: to be incapsulated
@@ -152,7 +75,6 @@ ViewPort.Drawing = function(core) {
         });
         
     }
-    
     drawing.bindHandlersToEvents = function(handlers) {
 
         drawing.bindEventHandlerToDomElement({
@@ -196,7 +118,6 @@ ViewPort.Drawing = function(core) {
         });
 
     }
-    
     drawing.createCurve = function(options) {
        
         var curve = drawing.curveCollection.createItem({
@@ -207,7 +128,54 @@ ViewPort.Drawing = function(core) {
         
     }
  
-    return drawing.init(core);
+    drawing.defineCollection('curveCollection', 'Curve');
+    drawing.defineRequiredField("id");
+    drawing.defineField("color", "#003300");
+    drawing.defineField("model");
+    drawing.defineEvents(
+        "viewPortDrawingHasBeenCreated",
+        "bindEventHandlerToDomElement", 
+        "createSvgElement",
+        "setDomElementStyle"
+    );
+    drawing.defineMixins("Layer");
+    drawing.height = 777;
+    drawing.element = null;
+
+    drawing.setElement({
+        id: drawing.id,
+        color: drawing.color
+    });
+
+    var handlers = {
+        down: [],
+        up: [],
+        move: [],
+        knock: []
+    }
+
+    drawing.viewPortDrawingHasBeenCreated({
+        createCurve: drawing.createCurve,
+        addDownHandler: function(handler) {
+            handlers.down.push(handler);
+        },
+        addUpHandler: function(handler) {
+            handlers.up.push(handler);
+        },
+        addMoveHandler: function(handler) {
+            handlers.move.push(handler);
+        },
+        addKnockHandler: function(handler) {
+            handlers.knock.push(handler);
+        },
+        setModel: function(model) {
+            drawing.model = model;
+        }
+    });
+
+    drawing.bindHandlersToEvents(handlers);
+
+    return {};
     
 }
     

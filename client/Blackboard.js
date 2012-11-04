@@ -3,64 +3,27 @@ function(Blackboard) {
 
 
 
-Blackboard.Chalk = function(core) {
+Blackboard.Chalk = function(chalk) {
     
     var chalk = this;
 
-    chalk.init = function(core) {
-        
-        core.isIn(chalk);
-        
-        return {
-            
-        };
-
-    }
     
-    return chalk.init(core);
+    return {};
     
 }
 
-Blackboard.Tray = function(core) {
+Blackboard.Tray = function(tray) {
     
     var tray = this;
 
-    tray.init = function(core) {
-        
-        core.isIn(tray);
-        
-        return {
-            
-        };
-
-    }
     
-    return tray.init(core);
+    return {};
     
 }
 
 
-Blackboard.Lecturer = function(core) {
-    
-    var lecturer = this;
+Blackboard.Lecturer = function(lecturer) {
 
-    lecturer.init = function(core) {
-        
-        core.isIn(lecturer);
-        core.defineField('facedThing');
-        core.defineField('tool');
-        core.defineField('isTouching');
-        
-        return {
-            face: lecturer.face,
-            touchWithHand: lecturer.touchWithHand,
-            withdrawHand: lecturer.withdrawHand,
-            moveHand: lecturer.moveHand,
-            knockWithHand: lecturer.knockWithHand
-        };
-
-    }
-    
     lecturer.face = function(thing, tool) {
         
         lecturer.facedThing = thing;
@@ -94,29 +57,22 @@ Blackboard.Lecturer = function(core) {
         
     }
     
-    return lecturer.init(core);
+    lecturer.defineField('facedThing');
+    lecturer.defineField('tool');
+    lecturer.defineField('isTouching');
+
+    return {
+        face: lecturer.face,
+        touchWithHand: lecturer.touchWithHand,
+        withdrawHand: lecturer.withdrawHand,
+        moveHand: lecturer.moveHand,
+        knockWithHand: lecturer.knockWithHand
+    };
     
 }
 
-Blackboard.Board = function(core) {
+Blackboard.Board = function(board) {
 
-    var board = this;
-    
-    board.init = function(core) {
-        
-        core.isIn(board);
-
-        core.defineField("currentPath");
-        core.defineCollection("pathCollection", "Path");
-     
-        return {
-            startChange: board.startChange,
-            continueChange: board.continueChange,
-            stopChange: board.stopChange
-        };
-        
-    };
-    
     board.startChange = function(x, y, tool) {
      
         board.currentPath = board.pathCollection.createItem({});
@@ -137,35 +93,18 @@ Blackboard.Board = function(core) {
         
     };
     
-    return board.init(core);
+    board.defineField("currentPath");
+    board.defineCollection("pathCollection", "Path");
+
+    return {
+        startChange: board.startChange,
+        continueChange: board.continueChange,
+        stopChange: board.stopChange
+    };
     
 }
 
-Blackboard.Path = function(core) {
-    
-    var path = this;
-    
-    path.init = function(core) {
-        
-        core.isIn(path);
-        core.defineField("dots", []);
-        core.defineEvents(
-            "blackboardPathHasBeenCreated"
-        );
-            
-        path.onDotHandlers = [];
-            
-        path.blackboardPathHasBeenCreated({
-            addOnDotHandler: function(handler) {
-                path.onDotHandlers.push(handler);
-            }
-        });
-
-        return {
-            addDot: path.addDot
-        }
-        
-    };
+Blackboard.Path = function(path) {
     
     path.addDot = function(x, y) {
         
@@ -180,28 +119,25 @@ Blackboard.Path = function(core) {
         
     };
 
-    return path.init(core);
-    
-}
+    path.defineField("dots", []);
+    path.defineEvents(
+        "blackboardPathHasBeenCreated"
+    );
 
-Blackboard.Changable = function(core) {
+    path.onDotHandlers = [];
 
-    var changable = this;
-    
-    changable.init = function(core) {
-        core.isIn(changable);
-        core.isInterface();
-        
-        return {
-            
-        };
+    path.blackboardPathHasBeenCreated({
+        addOnDotHandler: function(handler) {
+            path.onDotHandlers.push(handler);
+        }
+    });
+
+    return {
+        addDot: path.addDot
     }
     
-    changable.startChange = function(x, y, tool) {}
-    
-    return changable.init(core);
-    
 }
+
 
 
 

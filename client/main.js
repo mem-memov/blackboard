@@ -6,6 +6,6 @@ window.onload=function() {
         id: 'panel'
     });
 
-    drawing.publicTestMethod();
+    drawing.publicTestMethod(9001);
 
 };
