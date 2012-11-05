@@ -3,34 +3,18 @@ function(ViewPort) {
     
 ViewPort.Layer = function(layer) {
     
-    layer.init = function() {
+    return function(layer) {
 
         return{
             
         };
         
-    }
-    
-    return layer.init();
+    };
     
 }
     
 ViewPort.Curve = function(curve) {
-    
-    curve.init = function() {
-     
-        curve.defineRequiredField("container");
-        curve.defineField("element");
-        curve.defineEvents(
-            "createSvgElement"
-        );
 
-        return {
-            draw: curve.draw
-        };
-        
-    }
-    
     curve.draw = function(x, y) {
      
         if (!curve.element) {
@@ -56,63 +40,24 @@ ViewPort.Curve = function(curve) {
 
     }
     
-    return curve.init();
+    return function(curve) {
+     
+        curve.defineRequiredField("container");
+        curve.defineField("element");
+        curve.defineEvents(
+            "createSvgElement"
+        );
+
+        return {
+            draw: curve.draw
+        };
+        
+    };
     
 }
     
     
 ViewPort.Drawing = function(drawing) {
-    
-    drawing.init = function() {
-       
-        drawing.defineCollection('curveCollection', 'Curve');
-        drawing.defineRequiredField("id");
-        drawing.defineField("color", "#003300");
-        drawing.defineField("model");
-        drawing.defineEvents(
-            "viewPortDrawingHasBeenCreated",
-            "bindEventHandlerToDomElement", 
-            "createSvgElement",
-            "setDomElementStyle"
-        );
-        drawing.element = null;
-
-        drawing.setElement({
-            id: drawing.id,
-            color: drawing.color
-        });
-
-        var handlers = {
-            down: [],
-            up: [],
-            move: [],
-            knock: []
-        }
-
-        drawing.viewPortDrawingHasBeenCreated({
-            createCurve: drawing.createCurve,
-            addDownHandler: function(handler) {
-                handlers.down.push(handler);
-            },
-            addUpHandler: function(handler) {
-                handlers.up.push(handler);
-            },
-            addMoveHandler: function(handler) {
-                handlers.move.push(handler);
-            },
-            addKnockHandler: function(handler) {
-                handlers.knock.push(handler);
-            },
-            setModel: function(model) {
-                drawing.model = model;
-            }
-        });
-
-        drawing.bindHandlersToEvents(handlers);
-
-        return {};
-        
-    }
 
     drawing.setElement = function(options) {
         
@@ -181,8 +126,56 @@ ViewPort.Drawing = function(drawing) {
         
     }
 
+    return function(drawing) {
 
-    return drawing.init();
+        drawing.defineCollection('curveCollection', 'Curve');
+        drawing.defineRequiredField("id");
+        drawing.defineField("color", "#003300");
+        drawing.defineField("model");
+        drawing.defineEvents(
+            "viewPortDrawingHasBeenCreated",
+            "bindEventHandlerToDomElement", 
+            "createSvgElement",
+            "setDomElementStyle"
+        );
+        drawing.element = null;
+
+        drawing.setElement({
+            id: drawing.id,
+            color: drawing.color
+        });
+
+        var handlers = {
+            down: [],
+            up: [],
+            move: [],
+            knock: []
+        }
+
+        drawing.viewPortDrawingHasBeenCreated({
+            createCurve: drawing.createCurve,
+            addDownHandler: function(handler) {
+                handlers.down.push(handler);
+            },
+            addUpHandler: function(handler) {
+                handlers.up.push(handler);
+            },
+            addMoveHandler: function(handler) {
+                handlers.move.push(handler);
+            },
+            addKnockHandler: function(handler) {
+                handlers.knock.push(handler);
+            },
+            setModel: function(model) {
+                drawing.model = model;
+            }
+        });
+
+        drawing.bindHandlersToEvents(handlers);
+
+        return {};
+        
+    };
     
 }
     
