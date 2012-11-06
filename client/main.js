@@ -2,9 +2,11 @@
 
 window.onload=function() {
     
-    dddCompact.makeInstance("ViewPort", "Drawing", {
+    var d = dddCompact.makeInstance("ViewPort", "Drawing", {
         id: 'panel'
     });
+    
+    console.log(d._instanceOf("Layer"));
 
 };
 
