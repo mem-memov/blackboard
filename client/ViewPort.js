@@ -58,8 +58,6 @@ ViewPort.Curve = function(curve) {
     
     
 ViewPort.Drawing = function(drawing) {
-    
-    drawing.defineParent("Layer")
 
     drawing.setElement = function(options) {
         
