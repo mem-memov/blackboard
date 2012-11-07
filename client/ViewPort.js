@@ -1,5 +1,4 @@
-function(ViewPort) {
-    
+function domain (ViewPort) {
     
 ViewPort.Layer = function(layer) {
     

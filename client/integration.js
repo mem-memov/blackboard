@@ -123,4 +123,4 @@ var dddCompact = new DddCompact({
     }
     
     
-});
+}, true);

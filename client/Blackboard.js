@@ -1,4 +1,4 @@
-function(Blackboard) {
+function domain (Blackboard) {
 
 
 
