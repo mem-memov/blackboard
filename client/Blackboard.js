@@ -63,7 +63,7 @@ Blackboard.Lecturer = function(lecturer) {
         lecturer.defineField('facedThing');
         lecturer.defineField('tool');
         lecturer.defineField('isTouching');
-
+console.log(lecturer.tool);
         return {
             face: lecturer.face,
             touchWithHand: lecturer.touchWithHand,
