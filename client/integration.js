@@ -92,10 +92,11 @@ var dddCompact = new DddCompact({
         
         var 
             lecturer = eventBus.makeSingleton("Blackboard", "Lecturer"),
-            blackboard = eventBus.makeSingleton("Blackboard", "Board")
+            blackboard = eventBus.makeSingleton("Blackboard", "Board", { boardId: 1}),
+            chalk = eventBus.makeSingleton("Blackboard", "Chalk")
         ;
 
-        lecturer.face(blackboard);
+        lecturer.face(blackboard, chalk);
         
         eventBus.addHandler("blackboardPathHasBeenCreated", data.createCurve);
        

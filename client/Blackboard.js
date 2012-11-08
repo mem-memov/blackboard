@@ -2,13 +2,86 @@ function domain (Blackboard) {
 
 
 
+Blackboard.Tool = function(tool) {
+    
+    tool.start = function() {
+        console.log("Tool starts.");
+    }
+
+    tool.work = function() {
+        console.log("Tool works.");
+    }
+
+    tool.stop = function() {
+        console.log("Tool stops.");
+    }
+
+    return function(tool) {
+
+        return {
+            start: tool.start,
+            work: tool.work,
+            stop: tool.stop
+        };
+    };
+    
+}
+
 
 Blackboard.Chalk = function(chalk) {
 
+    chalk.defineParent("Tool");
+    
+    chalk.start = function(thing, x, y) {
+        
+        console.log("Chalk starts.");
+
+        chalk.thing = thing;
+        
+        chalk.path = chalk.pathCollection.createItem({});
+
+        chalk.path.addDot(x, y);
+        
+        chalk.thing.showPath(chalk.path);
+        
+    }
+
+    chalk.work = function(x, y) {
+        
+        console.log("Chalk works.");
+        
+        chalk.path.addDot(x, y);
+        
+    }
+    
+    chalk.stop = function() {
+        
+        console.log("Chalk stops.");
+
+    }
+
     return function(chalk) {
         
-        return {};
+        chalk.defineField("path");
+        chalk.defineField("thing");
+        chalk.defineCollection("pathCollection", "Path");
+        
+        chalk.defineMessages(
+            "ChalkDrawsLines"
+        );
+        
+        return {
+            start: chalk.start,
+            work: chalk.work,
+            stop: chalk.stop
+        };
     };
+    
+}
+
+Blackboard.ChalkDrawsLines = function(chalk) {
+    
+    
     
 }
 
@@ -27,7 +100,12 @@ Blackboard.Lecturer = function(lecturer) {
 
     lecturer.face = function(thing, tool) {
         
+        if (!tool.__instanceOf("Tool")) {
+            throw new Error("Lecturer needs a tool.");
+        }
+        
         lecturer.facedThing = thing;
+        
         lecturer.tool = tool;
         
     }
@@ -35,21 +113,21 @@ Blackboard.Lecturer = function(lecturer) {
     lecturer.touchWithHand = function(x, y) {
         
         lecturer.isTouching = true;
-        lecturer.facedThing.startChange(x, y, lecturer.tool);
+        lecturer.tool.start(lecturer.facedThing, x, y);
         
     }
     
     lecturer.withdrawHand = function(x, y) {
         
         lecturer.isTouching = false;
-        lecturer.facedThing.stopChange(x, y, lecturer.tool);
+        lecturer.tool.stop(x, y);
         
     }
     
     lecturer.moveHand = function(x, y, continueMethod) {
 
         if (lecturer.isTouching) {
-            lecturer.facedThing.continueChange(x, y, lecturer.tool);
+            lecturer.tool.work(x, y);
         }
         
     }
@@ -63,7 +141,7 @@ Blackboard.Lecturer = function(lecturer) {
         lecturer.defineField('facedThing');
         lecturer.defineField('tool');
         lecturer.defineField('isTouching');
-console.log(lecturer.tool);
+//console.log(lecturer.tool);
         return {
             face: lecturer.face,
             touchWithHand: lecturer.touchWithHand,
@@ -76,37 +154,25 @@ console.log(lecturer.tool);
     
 }
 
+
+
 Blackboard.Board = function(board) {
 
-    board.startChange = function(x, y, tool) {
+    board.showPath = function(path) {
      
-        board.currentPath = board.pathCollection.createItem({});
+        board.pathCollection.updateItem(path);
+        
+    };
 
-        board.currentPath.addDot(x, y);
-        
-    };
-    
-    board.continueChange = function(x, y, tool) {
-
-        board.currentPath.addDot(x, y);
-        
-    };
-    
-    board.stopChange = function(x, y, tool) {
-        
-        
-        
-    };
     
     return function(board) {
         
+        board.defineIdField("boardId");
         board.defineField("currentPath");
         board.defineCollection("pathCollection", "Path");
 
         return {
-            startChange: board.startChange,
-            continueChange: board.continueChange,
-            stopChange: board.stopChange
+            showPath: board.showPath
         };
         
     };
