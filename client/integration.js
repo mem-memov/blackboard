@@ -113,14 +113,6 @@ var dddCompact = new DddCompact({
             addOnDotHandler: data.addOnDotHandler
         });
         
-    },
-    
-    blackboardPathHasBeenAugmented: function(data, eventBus) {
-        
-        eventBus.handle({
-            dots: data.dots
-        });
-        
     }
     
     

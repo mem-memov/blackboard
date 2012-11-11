@@ -1,133 +1,36 @@
 function domain (Blackboard) {
 
 
-
-Blackboard.Tool = function(tool) {
-    
-    tool.start = function() {
-        console.log("Tool starts.");
-    }
-
-    tool.work = function() {
-        console.log("Tool works.");
-    }
-
-    tool.stop = function() {
-        console.log("Tool stops.");
-    }
-
-    return function(tool) {
-
-        return {
-            start: tool.start,
-            work: tool.work,
-            stop: tool.stop
-        };
-    };
-    
-}
-
-
-Blackboard.Chalk = function(chalk) {
-
-    chalk.defineParent("Tool");
-    
-    chalk.start = function(thing, x, y) {
-        
-        console.log("Chalk starts.");
-
-        chalk.thing = thing;
-        
-        chalk.path = chalk.pathCollection.createItem({});
-
-        chalk.path.addDot(x, y);
-        
-        chalk.thing.showPath(chalk.path);
-        
-    }
-
-    chalk.work = function(x, y) {
-        
-        console.log("Chalk works.");
-        
-        chalk.path.addDot(x, y);
-        
-    }
-    
-    chalk.stop = function() {
-        
-        console.log("Chalk stops.");
-
-    }
-
-    return function(chalk) {
-        
-        chalk.defineField("path");
-        chalk.defineField("thing");
-        chalk.defineCollection("pathCollection", "Path");
-        
-        chalk.defineMessages(
-            "ChalkDrawsLines"
-        );
-        
-        return {
-            start: chalk.start,
-            work: chalk.work,
-            stop: chalk.stop
-        };
-    };
-    
-}
-
-Blackboard.ChalkDrawsLines = function(chalk) {
-    
-    
-    
-}
-
-Blackboard.Tray = function(tray) {
-    
-
-    return function(tray) {
-        
-        return {};
-    };
-    
-}
-
-
 Blackboard.Lecturer = function(lecturer) {
 
     lecturer.face = function(thing, tool) {
-        
-        if (!tool.__instanceOf("Tool")) {
-            throw new Error("Lecturer needs a tool.");
-        }
-        
+
         lecturer.facedThing = thing;
         
         lecturer.tool = tool;
+        
+        lecturer.chooseAction();
         
     }
     
     lecturer.touchWithHand = function(x, y) {
         
         lecturer.isTouching = true;
-        lecturer.tool.start(lecturer.facedThing, x, y);
+        lecturer.action.start(x, y);
         
     }
     
     lecturer.withdrawHand = function(x, y) {
         
         lecturer.isTouching = false;
-        lecturer.tool.stop(x, y);
+        lecturer.action.stop(x, y);
         
     }
     
     lecturer.moveHand = function(x, y, continueMethod) {
 
         if (lecturer.isTouching) {
-            lecturer.tool.work(x, y);
+            lecturer.action.run(x, y);
         }
         
     }
@@ -136,12 +39,38 @@ Blackboard.Lecturer = function(lecturer) {
         
     }
     
+    lecturer.chooseAction = function() {
+
+        if (
+            lecturer.facedThing.__instanceOf("Board")
+            && lecturer.tool.__instanceOf("Chalk")
+        ) {
+            lecturer.action = lecturer.lecturerDrawsWithChalkOnBoard({
+                board: lecturer.facedThing,
+                chalk: lecturer.tool
+            });
+        }
+        
+        if (
+            lecturer.facedThing.__instanceOf("Board")
+            && lecturer.tool.__instanceOf("Board")
+        ) {
+            lecturer.action = lecturer.lecturerMovesBoard({
+                board: lecturer.facedThing
+            });
+        }
+        
+    }
+    
     return function(lecturer) {
         
-        lecturer.defineField('facedThing');
-        lecturer.defineField('tool');
-        lecturer.defineField('isTouching');
-//console.log(lecturer.tool);
+        lecturer.defineField("facedThing");
+        lecturer.defineField("tool");
+        lecturer.defineField("isTouching");
+        lecturer.defineField("action");
+        lecturer.defineMessage("lecturerDrawsWithChalkOnBoard", "LecturerDrawsWithChalkOnBoard");
+        lecturer.defineMessage("lecturerMovesBoard", "LecturerMovesBoard");
+
         return {
             face: lecturer.face,
             touchWithHand: lecturer.touchWithHand,
@@ -154,7 +83,150 @@ Blackboard.Lecturer = function(lecturer) {
     
 }
 
+Blackboard.LecturerDrawsWithChalkOnBoard = function(lecturerDrawsWithChalkOnBoard) {
+    
+    lecturerDrawsWithChalkOnBoard.defineParent("Action");
+    
+    lecturerDrawsWithChalkOnBoard.start = function(x, y) {
+        
+        console.log("Lecturer prepares for drawing with chalk on the board.");
+        
+        lecturerDrawsWithChalkOnBoard.board.showPath(
+            lecturerDrawsWithChalkOnBoard.chalk.draw(x, y)
+        );
+        
+    }
 
+    lecturerDrawsWithChalkOnBoard.run = function(x, y) {
+        
+        console.log("Lecturer draws with chalk on the board.");
+        
+        lecturerDrawsWithChalkOnBoard.board.showPath(
+            lecturerDrawsWithChalkOnBoard.chalk.draw(x, y)
+        );
+        
+        
+    }
+    
+    lecturerDrawsWithChalkOnBoard.stop = function(x, y) {
+        
+        console.log("Lecturer stops drawing with chalk on the board.");
+        
+        lecturerDrawsWithChalkOnBoard.chalk.move(x, y);
+
+    }
+    
+    return function(lecturerDrawsWithChalkOnBoard) {
+        
+        lecturerDrawsWithChalkOnBoard.defineRequiredField("chalk");
+        lecturerDrawsWithChalkOnBoard.defineRequiredField("board");
+
+        return {
+            start: lecturerDrawsWithChalkOnBoard.start,
+            run: lecturerDrawsWithChalkOnBoard.run,
+            stop: lecturerDrawsWithChalkOnBoard.stop
+        };
+    };
+    
+}
+
+Blackboard.LecturerMovesBoard = function(lecturerMovesBoard) {
+    
+    lecturerMovesBoard.defineParent("Action");
+    
+    lecturerMovesBoard.start = function(x, y) {
+        
+        console.log("Lecturer prepares for moving the board.");
+        
+    }
+    
+    lecturerMovesBoard.run = function(x, y) {
+        
+        console.log("Lecturer moves the board.");
+        
+        lecturerMovesBoard.board.move(x, y);
+        
+    }
+    
+    lecturerMovesBoard.stop = function(x, y) {
+        
+        console.log("Lecturer stops moving the board.");
+        
+    }
+    
+    return function(lecturerMovesBoard) {
+        
+        lecturerMovesBoard.defineField("board");
+        
+        return {
+            start: lecturerMovesBoard.start,
+            run: lecturerMovesBoard.run,
+            stop: lecturerMovesBoard.stop
+        };
+        
+    }
+    
+}
+
+Blackboard.Action = function(action) {
+    
+    action.start = function() {
+        console.log("Action starts.");
+    }
+
+    action.run = function() {
+        console.log("Action runs.");
+    }
+
+    action.stop = function() {
+        console.log("Action stops.");
+    }
+
+    return function(tool) {
+
+        return {
+            start: action.start,
+            run: action.run,
+            stop: action.stop
+        };
+    };
+    
+}
+
+Blackboard.Chalk = function(chalk) {
+
+    chalk.draw = function(x, y) {
+        
+        if (!chalk.path) {
+            chalk.path = chalk.pathCollection.createItem({});
+        }
+        
+        chalk.path.addDot(x, y);
+        
+        return chalk.path;
+        
+    }
+    
+    chalk.move = function(x, y) {
+        
+        if (chalk.path) {
+            chalk.path = null;
+        }
+        
+    }
+
+    return function(chalk) {
+
+        chalk.defineField("path", null);
+        chalk.defineCollection("pathCollection", "Path");
+
+        return {
+            draw: chalk.draw,
+            move: chalk.move
+        };
+    };
+    
+}
 
 Blackboard.Board = function(board) {
 
@@ -163,6 +235,12 @@ Blackboard.Board = function(board) {
         board.pathCollection.updateItem(path);
         
     };
+    
+    board.move = function(x, y) {
+        
+        
+        
+    }
 
     
     return function(board) {
@@ -217,7 +295,6 @@ Blackboard.Path = function(path) {
 
     
 }
-
 
 
 

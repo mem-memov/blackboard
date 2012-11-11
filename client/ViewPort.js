@@ -59,7 +59,7 @@ ViewPort.Curve = function(curve) {
 ViewPort.Drawing = function(drawing) {
 
     drawing.setElement = function(options) {
-        
+
         drawing.element = document.getElementById(options.id); // TODO: to be incapsulated
         
         drawing.setDomElementStyle({
@@ -175,6 +175,50 @@ ViewPort.Drawing = function(drawing) {
         return {};
         
     };
+    
+}
+    
+ViewPort.Vail = function(vail) {
+    
+    
+    return function(vail) {
+        
+        vail.defineRequiredField("id");
+        
+        vail.element = null;
+        
+        return {}
+        
+        
+        
+    }
+
+}
+
+ViewPort.DomElement = function(domElement) {
+    
+    domElement.setElement = function(options) {
+        
+        domElement.element = document.getElementById(options.id); // TODO: to be incapsulated
+        
+        domElement.setDomElementStyle({
+            domElement: domElement.element,
+            style: {
+                "background-color": options.color
+            }
+        });
+        
+    }
+    
+    return function(domElement) {
+        
+        domElement.defineRequiredField("id");
+        
+        domElement.element = null;
+        
+        return {}
+
+    }
     
 }
     
