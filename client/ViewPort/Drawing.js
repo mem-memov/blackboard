@@ -1,5 +1,5 @@
-define({
+({
 
     "class": "ViewPort.Drawing"
 
-});
+})
