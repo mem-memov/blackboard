@@ -28,6 +28,30 @@
         
     };
     
+    application.onFactoryAvailable = function(Factory) {
+
+        var o = {}; // while text has an object in brackets. There references to a variable 
+
+        var factory = Factory.instantiate({
+            path: applicationOptions.path,
+            loader: application.loader,
+            Class: application.Class
+        })
+
+        factory.make(
+            "EventBus", 
+            {
+                path: applicationOptions.path,
+                factory: factory,
+                loader: application.loader
+            },
+            function(eventBus) {
+                eventBus.fireEvent("start");
+            }
+        );
+
+    };
+    
     application.provideClass = function(className, onAvailable) {
         
         if (typeof application.classes[className] !== "undefined") {
@@ -40,6 +64,7 @@
                 applicationOptions.path + "/" + className + ".js",
                 function(text) {
                     application.classes[className] = new application.Class({
+                        name: className,
                         text: text
                     });
                     onAvailable(application.classes[className]);
@@ -47,26 +72,6 @@
             );
             
         }
-
-    };
-
-    application.onFactoryAvailable = function(Factory) {
-
-        var factory = Factory.instantiateStandAloneClass({
-            provideClass: application.provideClass
-        });
-
-        factory.make(
-            "EventBus", 
-            {
-                path: applicationOptions.path,
-                make: factory.make,
-                load: application.loader.load
-            },
-            function(eventBus) {
-                eventBus.fireEvent("start");
-            }
-        );
         
     };
 

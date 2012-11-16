@@ -1,74 +1,53 @@
 (function(options) {
     
     var o = {
-        definition: null,
+
+        init: null,
+        members: null,
+
         Scope: null,
-        className: null,
-        constructorMethod: null,
-        superClassName: null,
-        members: {
-            methods: {},
-            properties: {}
-        },
-        visibility: {
-            "public" : {},
-            "private" : {},
-            "protected": {}
-        }
+        name: null,
+        superName: null,
+        
+        publicMemberNames: null
+
     };
     
     o.init = function(options) {
         
-        o.setDefinition(options.text);
+        o.fetchDefinition(options.text);
         
-        o.analyzeDefinition();
+        o.setScope();
         
         return {
-            instantiateStandAloneClass: o.instantiateStandAloneClass
+            instantiate: o.instantiate
         };
         
     }
     
-    o.setDefinition = function(text) {
+    o.instantiate = function(instanceOptions) {
         
-        o.definition = (function(o) {
-            
-            return eval(text)
-            
-        })({});
-        
-        if (typeof o.definition["class"] === "undefined" || !o.definition["class"]) {
-            throw new Error("Class definition without class name.");
-        }
-        
-    }
-    
-    o.instantiateStandAloneClass = function(instanceOptions) {
-        
-        if (o.superClassName) {
-            throw new Eroor(o.className + " doesn't stand alone.");
+        if (o.superName) {
+            console.error(o.name + " doesn't stand alone.");
         }
         
         //---------------
         
         var scope = new o.Scope();
 
-        var constructorMethod = o.constructorMethod;
-        (function(o) {
-            return new constructorMethod(instanceOptions);
-        })(scope);
+        (function(init, o, options) {
+            
+            init(options);
+
+        })(o.init, scope, instanceOptions);
         
         //--------------------
-        
+
         var instance = {};
         
-        for (var key in o.visibility["public"]) {
-            
-            if (!o.visibility["public"].hasOwnProperty(key)) {
-                continue;
-            }
-            
-            instance[key] = scope[key];
+        for (var i=0, ln=o.publicMemberNames.length; i<ln; i++) {
+
+            instance[o.publicMemberNames[i]] = scope[o.publicMemberNames[i]];
             
         }
 
@@ -76,98 +55,61 @@
         
     };
     
-    o.analyzeDefinition = function() {
+    o.fetchDefinition = function(text) {
 
-        var
-            key,
-            analyzedKey
-        ;
+        var definition = (function(text) { 
+            
+            var 
+                meta, 
+                init, 
+                o = {}
+            ;
+            
+            eval(text);
+            
+            return {
+                meta: meta,
+                init: init,
+                o: o
+            }
+            
+        })(text);
+
+        
+        o.init = definition.init;
+        o.members = definition.o;
+
+        o.analyzeMetaData(definition.meta);
+
+    }
+    
+    o.analyzeMetaData = function(meta) {
+
+        if (meta["class"]) {
+            o.name = meta["class"];
+        } else {
+            console.error("Class definition without class name.");
+        }
+        
+        if (meta["public"]) {
+            o.publicMemberNames = meta["public"];
+        } else {
+            o.publicMemberNames = [];
+        }
+
+        if (meta["extends"]) {
+            o.superName = meta["extends"];
+        }
+
+    }
+
+    o.setScope = function() {
         
         o.Scope = function() {};
-
-        for(key in o.definition) {
-            
-            if (!o.definition.hasOwnProperty(key)) {
-                continue;
-            }
-                
-            analyzedKey = o.analyzeDefinitionKey(key);
-
-            // class
-            if (analyzedKey.name === "class") {
-                o.className = o.definition[key];
-                continue;
-            }
-
-            // constructor
-            if (analyzedKey.name === "constructor") {
-                o.constructorMethod = o.definition[key];
-                continue;
-            }
-
-            // super
-            if (analyzedKey.name === "super") {
-                o.superClassName = o.definition[key];
-                continue;
-            }
-
-            // members
-            if (typeof o.definition[key] === "function") {
-                o.members.methods[analyzedKey.name] = o.definition[key];
-            } else {
-                o.members.properties[analyzedKey.name] = o.definition[key];
-            }
-
-            // visibility
-            o.visibility[analyzedKey.visibility][analyzedKey.name] = o.definition[key];
-            
-            // base
-            o.Scope.prototype[analyzedKey.name] = o.definition[key];
-            
-        }
-      
-    }
-
-    
-    o.analyzeDefinitionKey = function(key) {
-        
-        var 
-            analyzedKey = {
-                name: null,
-                visibility: "private"
-            },
-            parts = key.split(" "),
-            i,
-            length = parts.length
-        ;
-
-        
-        for(i=0; i<length; i++) {
-            
-            if (parts[i].length === 0) {
-                continue;
-            }
-            
-            if (i === (length-1)) {
-                analyzedKey.name = parts[i];
-                continue;
-            }
-            
-            if (typeof o.visibility[parts[i]] !== "undefined") {
-                analyzedKey.visibility = parts[i];
-                continue;
-            }
-            
-        }
-        
-        if (!analyzedKey.name) {
-            throw new Error("No member name specified in class " + o.definition["class"]);
-        }
-        
-        return analyzedKey;
+        o.Scope.prototype = o.members;
         
     }
-    
+
     return o.init(options);
     
 })
