@@ -5,11 +5,13 @@
      * Loader of text files
      */
     
-        var o = {
-            preloadedTexts: {} // path: "escapedTextFromFile""
+        var o = {}, init, meta;
+        
+        meta = {
+            "class": "Loader"
         };
 
-        o.init = function(options) {
+        init = function(options) {
 
             if (typeof options.preloadedTexts !== "undefined") {
                 o.preloadedTexts = options.preloadedTexts;
@@ -20,11 +22,13 @@
             };
             
         };
+        
+        o.preloadedTexts = {}; // path: "escapedTextFromFile""
 
         o.load = function(loadOptions){
         /**
-         * @param Object loadOptions
-         * @param String loadOptions.path
+         * @param Object   loadOptions
+         * @param String   loadOptions.path
          * @param Function loadOptions.onLoad({text: String, load: Function})
          * @param Function loadOptions.onError({path: String, status: Number, statusText: String})
          */
@@ -121,7 +125,7 @@
 
         };
         
-        return o.init(options);
+        return init(options);
         
     };
 
@@ -129,36 +133,46 @@
         preloadedTexts: options.preloadedTexts
     }).load({
         path: options.path,
-        onLoad: options.onLoad,
-        onError: options.onError
+        onLoad: options.onLoad
     });
     
 })({
-    path: "/client/Application.js",
+    
+    path: "/client/Application/Application.js",
+    
     onLoad: function(result) {
        
-        var instantiate = function(text, options) {
-            eval("(" +
-                "    function(options) { " + 
-                "        var o = {}; " + 
-                "        var init = function(options){ return{}; }; " + 
-                         text + 
-                "        return init(options); " +
-                "    }" +
-            ")")(options);
+        var fetchClassDefinition = function(text) { 
+
+            var 
+                meta, 
+                init, 
+                o = {}
+            ;
+
+            eval(text);
+
+            return {
+                meta: meta,
+                init: init,
+                o: o
+            }
+
         }
         
-        instantiate(
-            result.text,
+        fetchClassDefinition(result.text).init(
             {
                 load: result.load,
-                instantiate: instantiate,
-                configurationPath: "/client/configuration.js"
+                fetchClassDefinition: fetchClassDefinition,
+                configurationPath: "/client/configuration.js",
+                domain: "Application"
             }
         );
         
     },
+    
     preloadedTexts: {
         //"/client/Application.js": ""
     }
+    
 });
