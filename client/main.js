@@ -1,3 +1,7 @@
+/**
+ * Loading text files and fetching class definitions is the basis on an application.
+ * Nothing should leak into global namespace.
+ */
 (function(options) {
 
     var Loader = function(options) {
@@ -33,11 +37,14 @@
          * @param Function loadOptions.onError({path: String, status: Number, statusText: String})
          */
 
+            // check the path to the file to be loaded
             if (typeof loadOptions.path === "undefined") {
                 console.error("No path has been provided for loading.");
             }
 
+            // check preloaded texts and use them when present
             if (typeof o.preloadedTexts[loadOptions.path] !== "undefined") {
+
                 loadOptions.onLoad({
                     text: o.preloadedTexts[loadOptions.path],
                     load: o.load
@@ -45,10 +52,12 @@
                 return;
             }
             
+            // check the handler of errors that happen when loading files
             if (typeof loadOptions.onError === "undefined") {
                 loadOptions.onError = o.defaultOnError;
             }
 
+            // create AJAX transport
             var httpRequest = o.makeHttpRequest();
 
             httpRequest.onreadystatechange = function() {
@@ -81,13 +90,17 @@
                 }
             }
             
+            // communicate with the server
             httpRequest.open('GET', loadOptions.path, false);
             httpRequest.send(null);
             
         };
         
         o.defaultOnError = function(error) {
-
+        /**
+         * It handles load errors when no custom error handler has been provided
+         */
+        
             console.error( 
                 'XML request error: ' 
                 + error.statusText 
@@ -97,7 +110,9 @@
         }
 
         o.makeHttpRequest = function() {
-            
+        /**
+         * It creates AJAX transport in a cross-browser fashion
+         */
             var xmlHttpFactories = [
                 function () {return new XMLHttpRequest()},
                 function () {return new ActiveXObject("Msxml2.XMLHTTP")},
@@ -141,7 +156,8 @@
     path: "/client/Application/Application.js",
     
     onLoad: function(result) {
-       
+
+        // show how class code should be defined
         var fetchClassDefinition = function(text) { 
 
             var 
@@ -160,6 +176,7 @@
 
         }
         
+        // start application
         fetchClassDefinition(result.text).init(
             {
                 load: result.load,
