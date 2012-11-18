@@ -1,28 +1,13 @@
-function(manager, command, onDone, onError) {
+function(manager, command) {
+  
+    var $ = manager.makeSingleton("Library", "JQuery").$;
 
-    manager.makeSingleton(
-        "Library", 
-        "JQuery",
-        {},
-        function(jQuery) {
-         
-            var $ = jQuery.$;
-      
-            var $domElement = $("#" + command.getId());
-
-            if ($domElement) {
-                $domElement.css(command.getStyle());
-                onDone();
-            } else {
-                if (typeof onError === "function") {
-                    onError();
-                }
-            }
-            
-            
-        }
-    );
-   
-
+    var $domElement = $("#" + command.getId());
     
+    if (!$domElement) {
+        console.error("DOM element not found");
+    }
+    
+    $domElement.css(command.getStyle());
+
 }

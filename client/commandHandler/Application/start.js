@@ -1,44 +1,17 @@
-function(manager, command, onDone, onError) {
+function(manager, command) {
     
-    manager.makeSingleton(
+     var drawing = manager.makeSingleton(
         "ViewPort", 
         "Drawing", 
         {
             id: 'panel'
-        },
-        function(drawing) {
-            
-            manager.makeSingleton(
-                "Blackboard", 
-                "Lecturer",
-                {},
-                function(lecturer) {
-
-                    manager.makeSingleton(
-                        "Blackboard", 
-                        "Board",
-                        {},
-                        function(board) {
-                            
-                            manager.makeSingleton(
-                                "Blackboard", 
-                                "Chalk",
-                                {},
-                                function(chalk) {
-
-                                    lecturer.face(board, chalk)
-
-                                }
-                            );
-
-                        }
-                    );
-
-                }
-            );
-            
-            
         }
     );
+        
+    var lecturer = manager.makeSingleton("Blackboard", "Lecturer");
+    var board = manager.makeSingleton("Blackboard", "Board");
+    var chalk = manager.makeSingleton("Blackboard", "Chalk");
+    
+    lecturer.face(board, chalk);
 
 }

@@ -1,5 +1,6 @@
 meta = {
-    "class": "Application"
+    "class": "Application",
+    "requires": ["Command"]
 }
 
 init = function(options) {
@@ -23,7 +24,7 @@ o.domainName;
 o.commandManager;
 o.classes = {};
 o.singletons = {};
-o.commands = {};
+o.commandHandlers = {};
 
 o.sendQuery = function(name, data, onQuery) {
     
@@ -31,226 +32,153 @@ o.sendQuery = function(name, data, onQuery) {
 
 o.emptyFunction = function() {};
 
-o.issueCommand = function(domainName, commandName, data, onDone, onError) {
-    
+o.issueCommand = function(domainName, commandName, data) {
+   
     if (typeof data === "undefined") {
         data = {};
     }
     
-    var command = new o.Command({
-        data:data,
-        commandName: commandName
-    });
-    
-    if (typeof onDone === "undefined") {
-        onDone = o.emptyFunction;
+    if (typeof o.commandHandlers[domainName] === "undefined") {
+        o.commandHandlers[domainName] = {};
     }
     
-    if (typeof onError === "undefined") {
-       onError = o.emptyFunction;
-    }
-    
-    if (typeof o.commands[domainName] === "undefined") {
-        o.commands[domainName] = {};
-    }
-    
-    if (typeof o.commands[domainName][commandName] !== "undefined") {
-        o.commands[domainName][commandName](o.commandManager, command, onDone, onError);
-    } else {
-
-        o.load({
-            path: o.composePathToCommandHandler(domainName, commandName),
-            onLoad: function(result) {
-
-                o.commands[domainName][commandName] = eval("(" + result.text + ")");
-                o.commands[domainName][commandName](o.commandManager, command, onDone, onError);
-
-            }
-        });
-        
-    }
-
-}
-
-o.Command = function(options) {
-    
-    var o = {};
-    o.commandName;
-    o.publicMemebers = {};
-    
-    var init = function(options) {
-        
-        o.commandName = options.commandName;
-        
-        var getterName;
-
-        for (var key in options.data) { 
-            if (options.data.hasOwnProperty(key)) { 
-                getterName = "get" + key.substr(0, 1).toUpperCase() + key.substr(1);
-                o.publicMemebers[getterName] = o.makeGetter(options.data[key]);
-            }
+    var command = o.makeInstance(
+        o.domainName, 
+        "Command", 
+        {
+            data: data,
+            commandName: commandName
         }
+    );
         
-        o.publicMemebers.hasName = o.hasName;
-        
-        return o.publicMemebers;
-        
-    }
-    
-    o.hasName = function(commandName) {
-        return (o.commandName === commandName);
-    }
-    
-    o.makeGetter = function(value) {
-        return function() {
-            return value;
-        }
-    }
-    
-    return init(options);
-    
+    var handle = o.provideCommandHandler(domainName, commandName);
+    handle(o.commandManager, command);
+
 }
 
 o.fireEvent = function(name, data) {
     
 }
 
-o.provideInstance = function(domainName, className, options, onAvailable, onError) {
+o.makeInstance = function(domainName, className, options) {
     
     if (typeof options === "undefined") {
         options = {};
     }
-    
-    if (typeof onAvailable === "undefined") {
-        onAvailable = o.emptyFunction;
-    }
-    
-    if (typeof onError === "undefined") {
-       onError = o.emptyFunction;
-    }
-    
-    o.provideClass(
-        domainName, 
-        className, 
-        function() {
-            
-            var definition = o.classes[domainName][className];
-            var scope = new definition.Scope();
 
-            (function(init, o, options, app) {
+    var definition = o.provideClassDefinition(domainName, className);
+    var scope = new definition.Scope();
 
-                init(options);
+    (function(init, o, options, app) {
 
-            })(
-                definition.init, 
-                scope, 
-                options,
-                definition.app
-            );
-            
-            var instance = {};
-            
-            if (typeof definition.meta["public"] !== "undefined") {
-                
-                for (var i=0, ln=definition.meta["public"].length; i<ln; i++) {
-                    instance[definition.meta["public"][i]] = scope[definition.meta["public"][i]];
-                }
-                
-            }
-            
-            onAvailable(instance);
-            
-        },
-        onError
+        init(options);
+
+    })(
+        definition.init, 
+        scope, 
+        options,
+        definition.app
     );
+
+    var instance = {};
+
+    if (typeof definition.meta["public"] !== "undefined") {
+
+        if (typeof definition.meta["public"] === "string") {
+
+            instance = scope[definition.meta["public"]];
+
+        } else { // array
+
+            for (var i=0, ln=definition.meta["public"].length; i<ln; i++) {
+                instance[definition.meta["public"][i]] = scope[definition.meta["public"][i]];
+            }
+
+        }
+
+    }
+    
+    return instance;
     
 }
 
-o.provideClass = function(domainName, className, onAvailable, onError) {
+o.provideClassDefinition = function(domainName, className) {
+    
+    if (typeof o.classes[domainName] === "undefined") {
+        o.classes[domainName] = {};
+    }
         
-    if (
-            typeof o.classes[domainName] !== "undefined"
-        &&  typeof o.classes[domainName][className] !== "undefined"
-    ) {
+    if (typeof o.classes[domainName][className] === "undefined") {
 
-        onAvailable(o.classes[domainName][className]);
+        var text = o.load(o.composePathForClass(domainName, className));
 
-    } else {
+        var definition = o.fetchClassDefinition(text);
 
-        o.load({
-            path: o.composePathForClass(domainName, className),
-            onLoad: function(result) {
-                
-                if (typeof o.classes[domainName] === "undefined") {
-                    o.classes[domainName] = {};
-                }
-                
-                var definition = o.fetchClassDefinition(result.text);
-                
-                definition.Scope = function(){};
-                definition.Scope.prototype = definition.o;
-                
-                definition.app.command = function(command, data, onDone, onError) {
-                    o.issueCommand(domainName, command, data, onDone, onError);
-                }
-                definition.app.make = function(className, options, onAvailable, onError) {
-                    o.provideInstance(domainName, className, options, onAvailable, onError) 
-                }
-                    
-                o.classes[domainName][className] = definition;
-                
-                onAvailable();
+        if (typeof definition.meta.requires !== "undefined") {
+            for (var i=0, ln=definition.meta.requires.length; i<ln; i++) {
+
             }
-        });
+        }
+
+        definition.Scope = function(){};
+        definition.Scope.prototype = definition.o;
+
+        definition.app.command = function(commandName, data, onDone, onError) {
+            console.log(commandName);
+            o.issueCommand(domainName, commandName, data, onDone, onError);
+        }
+        definition.app.make = function(className, options, onAvailable, onError) {
+            o.makeInstance(domainName, className, options, onAvailable, onError) 
+        }
+
+        o.classes[domainName][className] = definition;
 
     }
+    
+    return o.classes[domainName][className];
 
 };
 
-o.loadConfiguration = function(onConfigurationLoaded) {
+o.provideCommandHandler = function(domainName, commandName) {
     
-    o.load({
-        path: o.configurationPath,
-        onLoad: function(result) {
-            
-            o.configuration = eval(result.text);
-            
-            o.commandManager = {
-                make: o.provideInstance,
-                makeSingleton: function(domainName, className, options, onAvailable, onError) {
-                    
-                    if (typeof o.singletons[domainName] === "undefined") {
-                        o.singletons[domainName] = {};
-                    }
-                    
-                    if (typeof o.singletons[domainName][className] !== "undefined") {
-                        onAvailable(o.singletons[domainName][className]);
-                        return;
-                    }
-                    
-                    if (typeof o.singletons[domainName][className] === "undefined") {
-                        o.provideInstance(
-                            domainName, 
-                            className, 
-                            options, 
-                            function(instance) {
-                                o.singletons[domainName][className] = instance;
-                                onAvailable(o.singletons[domainName][className]);
-                            }, 
-                            onError
-                        );
-                    }
+    if (typeof o.commandHandlers[domainName][commandName] === "undefined") {
 
-                }
+        var path = o.composePathToCommandHandler(domainName, commandName);
+        var text = o.load(path);
+        
+        o.commandHandlers[domainName][commandName] = eval("(" + text + ")");
+
+    }
+    
+    return o.commandHandlers[domainName][commandName];
+    
+}
+
+o.loadConfiguration = function(onConfigurationLoaded) {
+
+    o.configuration = eval(o.load(o.configurationPath));
+
+    o.commandManager = {
+        make: o.makeInstance,
+        makeSingleton: function(domainName, className, options) {
+
+            if (typeof o.singletons[domainName] === "undefined") {
+                o.singletons[domainName] = {};
+            }
+
+            if (typeof o.singletons[domainName][className] === "undefined") {
+                o.singletons[domainName][className] = o.makeInstance(domainName, className, options);
             }
             
-            o.issueCommand(
-                o.domainName,
-                "start"
-            );
+            return o.singletons[domainName][className];
 
         }
-    });
+    }
+
+    o.issueCommand(
+        o.domainName,
+        "start"
+    );
     
 }
 

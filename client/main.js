@@ -4,7 +4,28 @@
  */
 (function(options) {
 
-    var Loader = function(options) {
+    this.fetchClassDefinition = function(text) { 
+    // show how class code should be defined
+    
+        var 
+            meta, 
+            init, 
+            o = {},
+            app = {}
+        ;
+
+        eval(text);
+
+        return {
+            meta: meta,
+            init: init,
+            o: o,
+            app: app
+        }
+
+    }
+
+    this.Loader = function(options) {
     /**
      * Loader of text files
      */
@@ -29,12 +50,24 @@
         
         o.preloadedTexts = {}; // path: "escapedTextFromFile""
 
-        o.load = function(loadOptions){
+        o.load = function(path){
+        
+            var exchange = {
+                path: path
+            }
+            
+            o.realLoad(exchange);
+            
+            return exchange.result;
+            
+        };
+
+        o.realLoad = function(loadOptions){
         /**
+         * Load files with code in a synchronous manner
          * @param Object   loadOptions
          * @param String   loadOptions.path
-         * @param Function loadOptions.onLoad({text: String, load: Function})
-         * @param Function loadOptions.onError({path: String, status: Number, statusText: String})
+         * @param String   loadOptions.result the return value
          */
 
             // check the path to the file to be loaded
@@ -45,16 +78,11 @@
             // check preloaded texts and use them when present
             if (typeof o.preloadedTexts[loadOptions.path] !== "undefined") {
 
-                loadOptions.onLoad({
-                    text: o.preloadedTexts[loadOptions.path],
-                    load: o.load
-                });
+                // return a preloaded result
+                loadOptions.result = o.preloadedTexts[loadOptions.path];
+
                 return;
-            }
-            
-            // check the handler of errors that happen when loading files
-            if (typeof loadOptions.onError === "undefined") {
-                loadOptions.onError = o.defaultOnError;
+                
             }
 
             // create AJAX transport
@@ -69,22 +97,18 @@
                         ||  httpRequest.status == 304 
                     ) {
 
-                        if (typeof loadOptions.onLoad === "function") {
-                            loadOptions.onLoad({
-                                text: httpRequest.responseText,
-                                load: o.load
-                            });
-                        }
+                        // return the loaded result
+                        loadOptions.result = httpRequest.responseText;
                         
                     } else {
 
-                        if (typeof loadOptions.onError === "function") {
-                            loadOptions.onError({
-                                path: loadOptions.path, 
-                                status: httpRequest.status, 
-                                statusText: httpRequest.statusText
-                            });
-                        }
+                        // notify about a loading error
+                        console.error( 
+                            'XML request error: ' 
+                            + error.statusText 
+                            + ' (' + error.status + ')' 
+                        );
+                            
                     }
                     
                 }
@@ -94,20 +118,10 @@
             httpRequest.open('GET', loadOptions.path, false);
             httpRequest.send(null);
             
+            // Prevent potential IE memory leak
+            xhr = null;
+            
         };
-        
-        o.defaultOnError = function(error) {
-        /**
-         * It handles load errors when no custom error handler has been provided
-         */
-        
-            console.error( 
-                'XML request error: ' 
-                + error.statusText 
-                + ' (' + error.status + ')' 
-            );
-
-        }
 
         o.makeHttpRequest = function() {
         /**
@@ -144,52 +158,27 @@
         
     };
 
-    new Loader({
+    var loader = new this.Loader({
         preloadedTexts: options.preloadedTexts
-    }).load({
-        path: options.path,
-        onLoad: options.onLoad
     });
     
+    var text = loader.load(options.path);
+
+    // start application
+    fetchClassDefinition(text).init(
+        {
+            load: loader.load,
+            fetchClassDefinition: this.fetchClassDefinition,
+            configurationPath: options.configurationPath,
+            domain: options.domain
+        }
+    );
+
 })({
     
     path: "/client/Application/Application.js",
-    
-    onLoad: function(result) {
-
-        // show how class code should be defined
-        var fetchClassDefinition = function(text) { 
-
-            var 
-                meta, 
-                init, 
-                o = {},
-                app = {}
-            ;
-
-            eval(text);
-
-            return {
-                meta: meta,
-                init: init,
-                o: o,
-                app: app
-            }
-
-        }
-        
-        // start application
-        fetchClassDefinition(result.text).init(
-            {
-                load: result.load,
-                fetchClassDefinition: fetchClassDefinition,
-                configurationPath: "/client/configuration.js",
-                domain: "Application"
-            }
-        );
-        
-    },
-    
+    configurationPath:  "/client/configuration.js",
+    domain: "Application",
     preloadedTexts: {
         //"/client/Application.js": ""
     }

@@ -1,14 +1,7 @@
-function(manager, command, onDone, onError) {
+function(manager, command) {
     
-    manager.makeSingleton(
-        "Blackboard", 
-        "Lecturer",
-        {},
-        function(lecturer) {
-         
-            lecturer.moveHand(command.getX(), command.getY());
-            
-        }
-    );
+    var lecturer = manager.makeSingleton("Blackboard", "Lecturer");
+    
+    lecturer.moveHand(command.getX(), command.getY());
     
 }
