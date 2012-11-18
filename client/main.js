@@ -1,5 +1,5 @@
 /**
- * Loading text files and fetching class definitions is the basis on an application.
+ * Loading text files and fetching class definitions is the basis of an application.
  * Nothing should leak into global namespace.
  */
 (function(options) {
@@ -163,7 +163,8 @@
             var 
                 meta, 
                 init, 
-                o = {}
+                o = {},
+                app = {}
             ;
 
             eval(text);
@@ -171,7 +172,8 @@
             return {
                 meta: meta,
                 init: init,
-                o: o
+                o: o,
+                app: app
             }
 
         }

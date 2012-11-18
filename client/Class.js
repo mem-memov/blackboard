@@ -4,6 +4,8 @@ meta = {
 
 init = function(options) {
 
+    o.fetchClassDefinition = options.fetchClassDefinition;
+    
     o.fetchDefinition(options.text);
 
     o.setScope();
