@@ -49,14 +49,11 @@ o.knockWithHand = function() {
 
 o.chooseAction = function() {
     
-    app.make(
+    o.action = app.make(
         "LecturerDrawsWithChalkOnBoard", 
         {
             board: o.facedThing,
             chalk: o.tool
-        },
-        function(action) {
-            o.action = action
         }
     );
     return;

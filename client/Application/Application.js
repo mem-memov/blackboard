@@ -114,11 +114,11 @@ o.provideClassDefinition = function(domainName, className) {
 
         var definition = o.fetchClassDefinition(text);
 
-        definition.app.command = function(commandName, data, onDone, onError) {
-            o.issueCommand(domainName, commandName, data, onDone, onError);
+        definition.app.command = function(commandName, data) {
+            o.issueCommand(domainName, commandName, data);
         }
-        definition.app.make = function(className, options, onAvailable, onError) {
-            o.makeInstance(domainName, className, options, onAvailable, onError) 
+        definition.app.make = function(className, options) {
+            return o.makeInstance(domainName, className, options) 
         }
 
         definition.Scope = function(){};
