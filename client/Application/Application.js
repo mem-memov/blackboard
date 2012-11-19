@@ -114,22 +114,15 @@ o.provideClassDefinition = function(domainName, className) {
 
         var definition = o.fetchClassDefinition(text);
 
-        if (typeof definition.meta.requires !== "undefined") {
-            for (var i=0, ln=definition.meta.requires.length; i<ln; i++) {
-
-            }
-        }
-
-        definition.Scope = function(){};
-        definition.Scope.prototype = definition.o;
-
         definition.app.command = function(commandName, data, onDone, onError) {
-            console.log(commandName);
             o.issueCommand(domainName, commandName, data, onDone, onError);
         }
         definition.app.make = function(className, options, onAvailable, onError) {
             o.makeInstance(domainName, className, options, onAvailable, onError) 
         }
+
+        definition.Scope = function(){};
+        definition.Scope.prototype = definition.o;
 
         o.classes[domainName][className] = definition;
 

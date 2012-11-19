@@ -93,7 +93,7 @@ o.onMouseUp = function(x, y) {
 }
 
 o.onMouseMove = function(x, y) {
-    
+  
     app.command(
         "moveHandAboveDrawing",
         {
