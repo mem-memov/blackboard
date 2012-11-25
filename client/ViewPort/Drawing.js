@@ -1,13 +1,13 @@
-meta = {
-    "class": "Drawing"
-};
+meta["class"] = "Drawing";
 
-init = function(options) {
+o.init = function(options) {
 
     o.id = options.id;
     
     o.setElementStyle();
     o.setElementListeners();
+    
+    return o;
     
 }
 
@@ -105,7 +105,7 @@ o.onMouseMove = function(x, y) {
 }
 
 o.onDoubleClick = function(x, y) {
-    
+
     app.command(
         "knockOnDrawingWithHand",
         {

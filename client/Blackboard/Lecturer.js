@@ -1,8 +1,7 @@
-meta = {
-    "class": "Lecturer",
-    "public": ["face", "touchWithHand", "withdrawHand", "moveHand", "knockWithHand"]
-}
-init = function(options) {
+meta["class"] = "Lecturer";
+meta["public"] = ["face", "touchWithHand", "withdrawHand", "moveHand", "knockWithHand"];
+
+o.init = function(options) {
     
 }
 
@@ -35,7 +34,7 @@ o.withdrawHand = function(x, y) {
 
 }
 
-o.moveHand = function(x, y, continueMethod) {
+o.moveHand = function(x, y) {
 
     if (o.isTouching) {
         o.action.run(x, y);
@@ -44,7 +43,7 @@ o.moveHand = function(x, y, continueMethod) {
 }
 
 o.knockWithHand = function() {
-
+    
 }
 
 o.chooseAction = function() {

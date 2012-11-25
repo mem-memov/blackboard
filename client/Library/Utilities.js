@@ -1,8 +1,7 @@
-meta = {
-    "class": "Utilities",
-    "public": ["object", "array", "test"]
-}
-init = function() {
+meta["class"] = "Utilities";
+meta["public"] = ["object", "array", "test"];
+
+o.init = function() {
     
 }
 

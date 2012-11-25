@@ -1,6 +1,5 @@
-meta = {
-    "class": "Vail"
-}
-init =  function(options) {
+meta["class"] = "Vail";
+
+o.init =  function(options) {
     
 }

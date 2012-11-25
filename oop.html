@@ -1,0 +1,50 @@
+<script>
+var makeClass = function(text, meta, app) { 
+// show how class code should be defined
+
+    return function() {
+        
+        var o = this;
+        
+        eval(text);
+        
+        return o;
+        
+    }
+
+}
+
+var text = "                                        \n\
+meta['class'] = 'Person';                               \n\
+                                                          \n\
+o.init = function(options) {                                 \n\
+    o.name = options.name;                                                \n\
+}                                                   \n\
+                                                    \n\
+o.name = 1;                                             \n\
+o.say = function() {                                            \n\
+    console.log(o.name);                                                    \n\
+}                                                   \n\
+                                                        \n\
+";
+    
+var app = {};
+var meta = {};
+var Cls = makeClass(text, meta);
+Cls();
+console.log(meta);
+
+var mike = new Cls();
+mike.init({name: "Mike"});
+console.log(mike);
+mike.say();
+
+var ted = new Cls();
+ted.init({name: "Ted"});
+console.log(ted);
+ted.say();
+
+mike.say();
+
+
+</script>

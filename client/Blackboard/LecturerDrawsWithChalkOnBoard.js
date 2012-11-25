@@ -1,9 +1,8 @@
-meta = {
-    "class": "LecturerDrawsWithChalkOnBoard",
-    "super": "Action",
-    "public": ["start", "run", "stop"]
-}
-init = function(options) {
+meta["class"] = "LecturerDrawsWithChalkOnBoard";
+meta["super"] = "Action";
+meta["public"] = ["start", "run", "stop"];
+
+o.init = function(options) {
     
      o.board = options.board;
      o.chalk = options.chalk;

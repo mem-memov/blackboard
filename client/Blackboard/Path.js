@@ -1,8 +1,7 @@
-meta = {
-    "class": "Path",
-    "public": ["addDot"]
-}
-init = function(options) {
+meta["class"] = "Path";
+meta["public"] = ["addDot"];
+
+o.init = function(options) {
     
 }
 

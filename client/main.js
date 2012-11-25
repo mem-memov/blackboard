@@ -4,28 +4,22 @@
  */
 (function(options) {
 
-    this.fetchClassDefinition = function(text) { 
+    var makeClass = function(text, meta, app) { 
     // show how class code should be defined
     
-        var 
-            meta, 
-            init, 
-            o = {},
-            app = {}
-        ;
+        return function() {
 
-        eval(text);
+            var o = this;
 
-        return {
-            meta: meta,
-            init: init,
-            o: o,
-            app: app
+            eval(text);
+
+            return o;
+
         }
 
     }
 
-    this.Loader = function(options) {
+    var Loader = function(options) {
     /**
      * Loader of text files
      */
@@ -158,17 +152,19 @@
         
     };
 
-    var loader = new this.Loader({
+    var loader = new Loader({
         preloadedTexts: options.preloadedTexts
     });
     
     var text = loader.load(options.path);
 
     // start application
-    fetchClassDefinition(text).init(
+    var Application = makeClass(text, {}, {});
+    var application = new Application();
+    application.init(
         {
             load: loader.load,
-            fetchClassDefinition: this.fetchClassDefinition,
+            makeClass: makeClass,
             configurationPath: options.configurationPath,
             domain: options.domain
         }

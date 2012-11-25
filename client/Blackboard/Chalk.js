@@ -1,8 +1,7 @@
-meta = {
-    "class": "Chalk",
-    "public": ["draw", "move"]
-}
-init = function(options) {
+meta["class"] = "Chalk";
+meta["public"] = ["draw", "move"];
+
+o.init = function(options) {
     
 }
 

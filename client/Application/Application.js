@@ -1,23 +1,19 @@
-meta = {
-    "class": "Application",
-    "requires": ["Command"]
-}
+meta["class"] = "Application";
 
-init = function(options) {
+
+o.init = function(options) {
     
     o.domainName = options.domain;
     o.load = options.load;
-    o.fetchClassDefinition = options.fetchClassDefinition;
+    o.makeClass = options.makeClass;
     o.configurationPath = options.configurationPath;
     
     o.loadConfiguration();
-    
-
 
 }
 
 o.load;
-o.fetchClassDefinition;
+o.makeClass;
 o.configurationPath;
 o.configuration;
 o.domainName;
@@ -33,7 +29,7 @@ o.sendQuery = function(name, data, onQuery) {
 o.emptyFunction = function() {};
 
 o.issueCommand = function(domainName, commandName, data) {
-   
+
     if (typeof data === "undefined") {
         data = {};
     }
@@ -50,7 +46,7 @@ o.issueCommand = function(domainName, commandName, data) {
             commandName: commandName
         }
     );
-        
+
     var handle = o.provideCommandHandler(domainName, commandName);
     handle(o.commandManager, command);
 
@@ -61,43 +57,39 @@ o.fireEvent = function(name, data) {
 }
 
 o.makeInstance = function(domainName, className, options) {
-    
+   
     if (typeof options === "undefined") {
         options = {};
     }
 
     var definition = o.provideClassDefinition(domainName, className);
-    var scope = new definition.Scope();
 
-    (function(init, o, options, app) {
+    var base = new definition.ConstructorMethod();
+    
+    if (typeof base.init !== "function") {
+        console.error("Class without init method: " + domainName + "." + className);
+    }
+    
+    base.init(options);
 
-        init(options);
-
-    })(
-        definition.init, 
-        scope, 
-        options,
-        definition.app
-    );
-
-    var instance = {};
+    var instance = {}; // TODO: inheritance goes here
 
     if (typeof definition.meta["public"] !== "undefined") {
 
-        if (typeof definition.meta["public"] === "string") {
+        if (typeof definition.meta["public"] === "string") { // a dynamic collection of public members
 
-            instance = scope[definition.meta["public"]];
+            instance = base[definition.meta["public"]];
 
         } else { // array
 
             for (var i=0, ln=definition.meta["public"].length; i<ln; i++) {
-                instance[definition.meta["public"][i]] = scope[definition.meta["public"][i]];
+                instance[definition.meta["public"][i]] = base[definition.meta["public"][i]];
             }
 
         }
 
     }
-    
+
     return instance;
     
 }
@@ -110,21 +102,41 @@ o.provideClassDefinition = function(domainName, className) {
         
     if (typeof o.classes[domainName][className] === "undefined") {
 
+        // load class text
         var text = o.load(o.composePathForClass(domainName, className));
-
-        var definition = o.fetchClassDefinition(text);
-
-        definition.app.command = function(commandName, data) {
+        
+        // fetch the constructor and provide class context
+        var meta = {};
+        var app = {};
+        var ConstructorMethod = o.makeClass(text, meta, app);
+        
+        // enable communication with the application level
+        app.command = function(commandName, data) {
             o.issueCommand(domainName, commandName, data);
         }
-        definition.app.make = function(className, options) {
+        app.make = function(className, options) {
             return o.makeInstance(domainName, className, options) 
         }
-
-        definition.Scope = function(){};
-        definition.Scope.prototype = definition.o;
-
-        o.classes[domainName][className] = definition;
+        
+        // fill meta data
+        ConstructorMethod(); 
+        
+        // check that there is no 'var meta' or 'meta = {...}' inside the code of the class
+        var metaIsDefinedCorrectly = false;
+        for (var key in meta) {
+            metaIsDefinedCorrectly = true;
+            break;
+        }
+        if (!metaIsDefinedCorrectly) {
+            console.error("The object with meta data can't be redefined in " + domainName + "." + className + ". Write like this: meta[\"class\"] = \"" + className + "\".")
+        }
+        
+        
+        // put the definition into the class buffer
+        o.classes[domainName][className] = {
+            meta: meta,
+            ConstructorMethod: ConstructorMethod
+        };
 
     }
     

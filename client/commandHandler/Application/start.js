@@ -1,6 +1,6 @@
 function(manager, command) {
     
-     var drawing = manager.makeSingleton(
+    var drawing = manager.makeSingleton(
         "ViewPort", 
         "Drawing", 
         {

@@ -1,9 +1,8 @@
-meta = {
-    "class": "LecturerMovesBoard",
-    "super": "Action",
-    "public": ["start", "run", "stop"]
-}
-init = function(options) {
+meta["class"] = "LecturerMovesBoard";
+meta["super"] = "Action";
+meta["public"] = ["start", "run", "stop"];
+
+o.init = function(options) {
     
      o.board = options.board;
     

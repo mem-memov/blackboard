@@ -1,7 +1,6 @@
-meta = {
-    "class": "Curve"
-}
-init =  function(options) {
+meta["class"] = "Curve";
+
+o.init =  function(options) {
     
 }
 
