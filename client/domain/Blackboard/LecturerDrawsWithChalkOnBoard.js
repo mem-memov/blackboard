@@ -1,5 +1,5 @@
 meta["class"] = "LecturerDrawsWithChalkOnBoard";
-meta["super"] = "Action";
+meta["extends"] = "Action";
 meta["public"] = ["start", "run", "stop"];
 
 o.init = function(options) {

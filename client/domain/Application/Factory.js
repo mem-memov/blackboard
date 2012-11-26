@@ -1,66 +1,35 @@
-meta["class"] = "Application";
-
+meta["class"] = "Factory";
 
 o.init = function(options) {
-    
-    o.domainName = options.domain;
+
     o.load = options.load;
     o.makeClass = options.makeClass;
-    o.configurationPath = options.configurationPath;
+    o.configuration = options.configuration;
     
-    o.loadConfiguration();
-
+    o.classes = {};
+    
 }
 
+o.classes;
 o.load;
 o.makeClass;
-o.configurationPath;
-o.configuration;
-o.domainName;
-o.commandManager;
-o.classes = {};
-o.singletons = {};
-o.commandHandlers = {};
 
-o.sendQuery = function(name, data, onQuery) {
-    
-}
-
-o.emptyFunction = function() {};
-
-o.issueCommand = function(domainName, commandName, data) {
-
-    if (typeof data === "undefined") {
-        data = {};
-    }
-    
-    if (typeof o.commandHandlers[domainName] === "undefined") {
-        o.commandHandlers[domainName] = {};
-    }
-    
-    var command = o.makeInstance(
-        o.domainName, 
-        "Command", 
-        {
-            data: data,
-            commandName: commandName
-        }
-    );
-
-    var handle = o.provideCommandHandler(domainName, commandName);
-    handle(o.commandManager, command);
-
-}
-
-o.fireEvent = function(name, data) {
-    
-}
-
-o.makeInstance = function(domainName, className, options) {
+o.makeInstance = function(domainName, className, options, context) {
 
     // define initialization options
     if (typeof options === "undefined") {
         options = {};
+    }
+    
+    // define context
+    if (typeof context === "undefined") {
+        context = {};
+    }
+    
+    // fetch configuration
+    var configuration = {};
+    if (o.configuration[domainName] && o.configuration[domainName][className]) {
+        configuration = o.configuration[domainName][className];
     }
     
     // create instance
@@ -70,7 +39,7 @@ o.makeInstance = function(domainName, className, options) {
     var definition = o.provideClassDefinition(domainName, className);
 
     // create base object
-    var base = new definition.ConstructorMethod();
+    var base = new definition.ConstructorMethod(context);
     
     // TODO: give the base object controle over public methods
     // base.__.instance = instance;
@@ -81,7 +50,7 @@ o.makeInstance = function(domainName, className, options) {
     }
     
     // initialize base object
-    base.init(options);
+    base.init(options, configuration);
 
     // transfer public members from the base object
     var publicMemberNames = o.collectPublicMembers(domainName, className);
@@ -98,8 +67,8 @@ o.collectPublicMembers = function(domainName, className) {
     var meta = o.provideClassDefinition(domainName, className).meta;
     
     var resultArray;
-    if (typeof meta["super"] !== "undefined") {
-        resultArray = o.collectPublicMembers(domainName, meta["super"]);
+    if (typeof meta["extends"] !== "undefined") {
+        resultArray = o.collectPublicMembers(domainName, meta["extends"]);
     } else {
         resultArray = [];
     }
@@ -119,7 +88,7 @@ o.collectPublicMembers = function(domainName, className) {
 }
 
 o.provideClassDefinition = function(domainName, className) {
-    
+ 
     if (typeof o.classes[domainName] === "undefined") {
         o.classes[domainName] = {};
     }
@@ -131,20 +100,12 @@ o.provideClassDefinition = function(domainName, className) {
         
         // fetch the constructor and provide class context
         var meta = {};
-        var app = {};
-        var ConstructorMethod = o.makeClass(text, meta, app);
-        
-        // enable communication with the application level
-        app.command = function(commandName, data) {
-            o.issueCommand(domainName, commandName, data);
-        }
-        app.make = function(className, options) {
-            return o.makeInstance(domainName, className, options) 
-        }
-        
-        // fill meta data
-        ConstructorMethod(); 
-        
+        var ConstructorMethod = o.makeClass(text, meta);
+
+        // fill meta data and prevent leakage to global namespace
+        var tmp = {};
+        ConstructorMethod.apply(tmp);
+
         // check that there is no 'var meta' or 'meta = {...}' inside the code of the class
         var metaIsDefinedCorrectly = false;
         for (var key in meta) {
@@ -154,10 +115,10 @@ o.provideClassDefinition = function(domainName, className) {
         if (!metaIsDefinedCorrectly) {
             console.error("The object with meta data can't be redefined in " + domainName + "." + className + ". Write like this: meta[\"class\"] = \"" + className + "\".")
         }
-        
+      
         // inherit from a super class
-        if (meta["super"]) {
-            var superDefinition = o.provideClassDefinition(domainName, meta["super"]);
+        if (meta["extends"]) {
+            var superDefinition = o.provideClassDefinition(domainName, meta["extends"]);
             var superBase = new superDefinition.ConstructorMethod();
             
             var superInstance = ConstructorMethod.prototype; // never redefine prototypes with freshly created objects because the constructor changes
@@ -176,7 +137,13 @@ o.provideClassDefinition = function(domainName, className) {
 
         }
         
-        
+        // include mixed in code
+        if (meta["includes"]) {
+            for (var i=0, ln=meta["includes"].length; i<ln; i++) {
+                
+            }
+        }
+
         // put the definition into the class cache
         o.classes[domainName][className] = {
             meta: meta,
@@ -187,51 +154,7 @@ o.provideClassDefinition = function(domainName, className) {
     
     return o.classes[domainName][className];
 
-};
-
-o.provideCommandHandler = function(domainName, commandName) {
-    
-    if (typeof o.commandHandlers[domainName][commandName] === "undefined") {
-
-        var path = o.composePathToCommandHandler(domainName, commandName);
-        var text = o.load(path);
-        
-        o.commandHandlers[domainName][commandName] = eval("(" + text + ")");
-
-    }
-    
-    return o.commandHandlers[domainName][commandName];
-    
 }
-
-o.loadConfiguration = function(onConfigurationLoaded) {
-
-    o.configuration = eval(o.load(o.configurationPath));
-
-    o.commandManager = {
-        make: o.makeInstance,
-        makeSingleton: function(domainName, className, options) {
-
-            if (typeof o.singletons[domainName] === "undefined") {
-                o.singletons[domainName] = {};
-            }
-
-            if (typeof o.singletons[domainName][className] === "undefined") {
-                o.singletons[domainName][className] = o.makeInstance(domainName, className, options);
-            }
-            
-            return o.singletons[domainName][className];
-
-        }
-    }
-
-    o.issueCommand(
-        o.domainName,
-        "start"
-    );
-    
-}
-
 
 o.composePathForClass = function(domainName, className) {
 /**
@@ -240,12 +163,6 @@ o.composePathForClass = function(domainName, className) {
  * @return String path to file with the class text
  */
     
-    return o.configuration.path + "/" + domainName + "/" + className.replace(".", "/") + ".js";
-    
-}
-
-o.composePathToCommandHandler = function(domainName, commandName) {
-    
-    return o.configuration.path + "/commandHandler/" + domainName + "/" + commandName + ".js";
+    return o.configuration.Application.Factory.pathToDomains + "/" + domainName + "/" + className.replace(".", "/") + ".js";
     
 }

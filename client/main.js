@@ -4,10 +4,10 @@
  */
 (function(options) {
 
-    var makeClass = function(text, meta, app) { 
+    var makeClass = function(text, meta) { 
     // show how class code should be defined
     
-        return function() {
+        return function(app) {
 
             var o = this;
 
@@ -17,8 +17,9 @@
 
         }
 
-    }
+    };
 
+    // provide code loader
     var Loader = function(options) {
     /**
      * Loader of text files
@@ -32,8 +33,8 @@
 
         init = function(options) {
 
-            if (typeof options.preloadedTexts !== "undefined") {
-                o.preloadedTexts = options.preloadedTexts;
+            if (typeof options.pathToPreloadedTexts !== "undefined") {
+                o.preloadedTexts = eval(o.load(options.pathToPreloadedTexts));
             }
 
             return {
@@ -151,32 +152,34 @@
         return init(options);
         
     };
-
     var loader = new Loader({
-        preloadedTexts: options.preloadedTexts
+        pathToPreloadedTexts: options.pathToPreloadedTexts
     });
     
-    var text = loader.load(options.path);
+    // load configuration
+    var configuration = eval(loader.load(options.configurationPath));
+    
+    // make factory
+    var text = loader.load(options.factoryPath);
+    var Factory = makeClass(text, {}, {});
+    var factory = new Factory();
+    factory.init({
+        load: loader.load,
+        makeClass: makeClass,
+        configuration: configuration
+    });
 
     // start application
-    var Application = makeClass(text, {}, {});
-    var application = new Application();
-    application.init(
-        {
-            load: loader.load,
-            makeClass: makeClass,
-            configurationPath: options.configurationPath,
-            domain: options.domain
-        }
-    );
+    var application = factory.makeInstance("Application", "Application", {
+        load: loader.load,
+        domain: "Application",
+        makeInstance: factory.makeInstance
+    });
 
 })({
     
-    path: "/client/Application/Application.js",
+    factoryPath: "/client/domain/Application/Factory.js",
     configurationPath:  "/client/configuration.js",
-    domain: "Application",
-    preloadedTexts: {
-        //"/client/Application.js": ""
-    }
+    pathToPreloadedTexts: "/client/preload.js"
     
 });
