@@ -4,8 +4,8 @@ meta["public"] = ["start", "run", "stop"];
 
 o.init = function(options) {
     
-     o.board = options.board;
-     o.chalk = options.chalk;
+    o.board = options.board;
+    o.chalk = options.chalk;
     
 }
 
