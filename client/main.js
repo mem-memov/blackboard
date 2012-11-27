@@ -6,12 +6,14 @@
 
     var makeClass = function(text, meta) { 
     // show how class code should be defined
+
+        eval(text.substr(0, text.indexOf("o."))); // fill meta data
     
         return function(app) {
 
             var o = this;
 
-            eval(text);
+            eval(text.substr(text.indexOf("o."))); // build instance
 
             return o;
 

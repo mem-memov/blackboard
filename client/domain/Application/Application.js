@@ -3,10 +3,7 @@ meta["public"] = ["init"]
 
 
 o.init = function(options, configuration) {
-    
-    
-    //o.makeInstance = options.makeInstance;
-    
+
     o.makeInstance = function(domainName, className, instanceOptions) { 
         
         var app = {};
