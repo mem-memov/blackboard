@@ -7,20 +7,20 @@ o.init = function(options) {
 
 o.dots = [];
 
-o.applyDotAdded = function(dotAdded) {
+o.applyDotAddedToPath = function(event) {
+    
+    o.dots.push({
+        x: event.getX(),
+        y: event.getY()
+    });
     
 }
 
 o.addDot = function(x, y) {
 
-    o.dots.push({
+    app.fire("dotAddedToPath", {
         x: x,
         y: y
     });
 
-/*
-    for (var i = 0; i < o.onDotHandlers.length; i++) {
-        o.onDotHandlers[i](x, y);
-    }
-*/
 }

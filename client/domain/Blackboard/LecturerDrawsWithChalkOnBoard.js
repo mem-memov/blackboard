@@ -14,7 +14,7 @@ o.chalk;
 
 o.start = function(x, y) {
 
-    console.log("Lecturer prepares for drawing with chalk on the board.");
+    //console.log("Lecturer prepares for drawing with chalk on the board.");
 
     o.board.showPath(
         o.chalk.draw(x, y)
@@ -24,7 +24,7 @@ o.start = function(x, y) {
 
 o.run = function(x, y) {
 
-    console.log("Lecturer draws with chalk on the board.");
+    //console.log("Lecturer draws with chalk on the board.");
 
     o.board.showPath(
         o.chalk.draw(x, y)
@@ -35,7 +35,7 @@ o.run = function(x, y) {
 
 o.stop = function(x, y) {
 
-    console.log("Lecturer stops drawing with chalk on the board.");
+    //console.log("Lecturer stops drawing with chalk on the board.");
 
     o.chalk.move(x, y);
 

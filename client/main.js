@@ -12,6 +12,10 @@
         return function(app) {
 
             var o = this;
+            
+            if (typeof app !== "undefined" && typeof app.connect === "function") {
+                app.connect(o, meta);
+            }
 
             eval(text.substr(text.indexOf("o."))); // build instance
 

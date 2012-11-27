@@ -11,22 +11,14 @@ o.draw = function(x, y) {
 
     if (!o.path) {
         
-        app.make(
-            "Path",
-            {},
-            function(path) {
-                o.path = path;
-                o.path.addDot(x, y);
-            }
-        );
+        o.path = app.make("Path", {});
+        o.path.addDot(x, y);
             
     } else {
-        
+
         o.path.addDot(x, y);
         
     }
-
-    //return o.path;
 
 }
 
