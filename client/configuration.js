@@ -5,7 +5,8 @@
         },
         Application: {
             pathToCommandHandlers: "/client/commandHandler",
-            pathToEventHandlers: "/client/eventHandler"
+            pathToEventHandlers: "/client/eventHandler",
+            mustShowEventsInConsole: true
         }
     }
 })

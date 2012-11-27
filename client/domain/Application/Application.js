@@ -4,6 +4,7 @@ meta["public"] = ["init"]
 
 o.init = function(options, configuration) {
 
+    o.mustShowEventsInConsole = configuration.mustShowEventsInConsole;
     o.domainName = options.domain;
     o.load = options.load;
     o.pathToCommandHandlers = configuration.pathToCommandHandlers;
@@ -51,6 +52,7 @@ o.makeInstance;
 o.load;
 o.domainName;
 o.commandManager;
+o.mustShowEventsInConsole;
 
 o.singletons = {};
 o.commandHandlers = {};
@@ -106,8 +108,10 @@ o.fireEvent = function(domainName, className, eventName, base, data) {
         
     var handle = o.provideEventHandler(domainName, eventName);
     
-    console.log(domainName + "." + className + " fires " + eventName + " event with this data:");
-    console.log(data);
+    if (o.mustShowEventsInConsole) {
+        console.log(domainName + "." + className + " fires " + eventName + " event with this data:");
+        console.log(data);
+    }
     
     handle(event);
     
