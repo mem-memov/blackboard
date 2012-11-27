@@ -1,28 +1,43 @@
 meta["class"] = "Command";
-meta["public"] = ["hasName", "get"];
+meta["public"] = [];
 
 o.init = function(options) {
 
     o.commandName = options.commandName;
-    o.data = options.data || {};
+    o.makeGetters(options.data || {});
 
 }
 
 o.commandName;
-o.data;
 
 o.hasName = function(commandName) {
     return (o.commandName === commandName);
 }
 
-o.get = function(key) {
+o.makeGetters = function(data) {
+    
+    var getterName;
+    for (var key in data) {
+        
+        if (!data.hasOwnProperty(key)) {
+            continue;
+        }
+        
+        getterName = "get" + key.substr(0,1).toUpperCase() + key.substr(1);
+        o[getterName] = o.makeGetter(data[key]);
+        if (meta["public"].indexOf(getterName) === -1) {
+            meta["public"].push(getterName);
+        }
 
-    if (typeof o.data[key] === "undefined") {
-        console.error("Unknown key '" + key + "' in '" + o.commandName + "' command.");
     }
-    
-    return o.data[key];
-    
+   
 }
+
+o.makeGetter = function(value) {
+    return function() {
+        return value;
+    }
+}
+
 
 

@@ -1,32 +1,32 @@
 function(manager, command) {
-    
+  
     var $ = manager.makeSingleton("Library", "JQuery").$;
 
-    var $domElement = $("#" + command.get("id"));
+    var $domElement = $("#" + command.getId());
 
     if (!$domElement) {
         console.error("DOM element not found");
     }
 
-    switch (command.get("event")) {
+    switch (command.getEvent()) {
         case "mouseMove":
             $domElement.mousemove(function(e) { 
-                command.get("listener")(e.clientX, e.clientY);
+                command.getListener()(e.clientX, e.clientY);
             });
             break;
         case "mouseDown":
            $domElement.mousedown(function(e) { 
-                command.get("listener")(e.clientX, e.clientY);
+                command.getListener()(e.clientX, e.clientY);
             });
             break;
         case "mouseUp":
             $domElement.mouseup(function(e) { 
-                command.get("listener")(e.clientX, e.clientY);
+                command.getListener()(e.clientX, e.clientY);
             });
             break;
         case "doubleClick":
             $domElement.dblclick(function(e) { 
-                command.get("listener")(e.clientX, e.clientY);
+                command.getListener()(e.clientX, e.clientY);
             });
             break;
         default:

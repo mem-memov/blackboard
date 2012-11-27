@@ -41,18 +41,15 @@ o.makeInstance = function(domainName, className, options, context) {
     var definition = o.provideClassDefinition(domainName, className);
 
     // create base object
-    var base = new definition.ConstructorFunction(context);
-    
-    // TODO: give the base object controle over public methods
-    // base.__.instance = instance;
+    var base = new definition.ConstructorFunction(context); 
 
     // check init function
     if (typeof base.init !== "function") {
-        console.error("Class without init method: " + domainName + "." + className);
+        console.error("Class without init method in " + domainName + "." + className + ". Write after meta data: o.init = function(options, configuration) { ... }");
     }
     
     // initialize base object
-    base.init(options, configuration);
+    base.init(options, configuration); // give the base object control over public methods
 
     // transfer public members from the base object
     var publicMemberNames = o.collectPublicMembers(domainName, className);

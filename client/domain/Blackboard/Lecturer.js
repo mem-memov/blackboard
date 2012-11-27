@@ -2,7 +2,7 @@ meta["class"] = "Lecturer";
 meta["public"] = ["face", "touchWithHand", "withdrawHand", "moveHand", "knockWithHand"];
 
 o.init = function(options) {
-    
+  
 }
 
 o.isTouching;
