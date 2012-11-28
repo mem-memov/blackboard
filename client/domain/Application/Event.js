@@ -28,9 +28,7 @@ o.makeGetters = function(data) {
         
         o[getterName] = o.makeGetter(data[key]);
         
-        if (meta["public"].indexOf(getterName) === -1) {
-            meta["public"].push(getterName);
-        }
+        app.showMember(getterName);
 
     }
    

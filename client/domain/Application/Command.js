@@ -25,9 +25,7 @@ o.makeGetters = function(data) {
         
         getterName = "get" + key.substr(0,1).toUpperCase() + key.substr(1);
         o[getterName] = o.makeGetter(data[key]);
-        if (meta["public"].indexOf(getterName) === -1) {
-            meta["public"].push(getterName);
-        }
+        app.showMember(getterName);
 
     }
    

@@ -42,6 +42,11 @@ o.makeInstance = function(domainName, className, options, context) {
 
     // create base object
     var base = new definition.ConstructorFunction(context); 
+    
+    // enable context to manipulate the internals
+    if (typeof context.connect === "function") {
+        context.connect(base, instance, definition.meta);
+    }
 
     // check init function
     if (typeof base.init !== "function") {

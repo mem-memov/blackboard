@@ -1,5 +1,5 @@
 meta["class"] = "Helper";
-meta["public"] = ["connect", "command", "make", "fire"];
+meta["public"] = ["connect", "command", "make", "fire", "showMember", "hideMember"];
 
 o.init = function(options) {
     
@@ -12,6 +12,7 @@ o.init = function(options) {
 }
 
 o.base;
+o.instance;
 o.meta;
 o.domainName;
 o.className;
@@ -19,9 +20,18 @@ o.issueCommand;
 o.makeInstance;
 o.fireEvent;
 
-o.connect = function(base, meta) {
+o.connect = function(base, instance, meta) {
     o.base = base;
+    o.instance = instance;
     o.meta = meta;
+}
+
+o.showMember = function(memberName) {
+    o.instance[memberName] = o.base[memberName];
+}
+
+o.hideMember = function(memberName) {
+    delete(o.instance[memberName]);
 }
 
 o.command = function(commandName, data) {

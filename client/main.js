@@ -9,13 +9,9 @@
 
         eval(text.substr(0, text.indexOf("o."))); // fill meta data
     
-        return function(app) {
+        return function(app, meta) { // meta is made inaccessible
 
             var o = this;
-            
-            if (typeof app !== "undefined" && typeof app.connect === "function") {
-                app.connect(o, meta);
-            }
 
             eval(text.substr(text.indexOf("o."))); // build instance
 
