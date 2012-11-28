@@ -24,6 +24,8 @@ o.init = function(options, configuration) {
         return options.makeInstance(domainName, className, instanceOptions, app);
     }
 
+    o.eventStore = o.makeInstance(configuration.eventStore.domainName, configuration.eventStore.className);
+
     o.commandManager = {
         make: o.makeInstance,
         makeSingleton: function(domainName, className, options) {
@@ -53,6 +55,7 @@ o.load;
 o.domainName;
 o.commandManager;
 o.mustShowEventsInConsole;
+o.eventStore;
 
 o.singletons = {};
 o.commandHandlers = {};
@@ -105,6 +108,8 @@ o.fireEvent = function(domainName, className, eventName, base, data) {
         console.error(domainName + "." + className + " has no " + applyMethodName + "(event) method.");
     }
     base[applyMethodName](event);
+    
+    o.eventStore.addEvent(domainName, className, eventName, 0, data);
         
     var handle = o.provideEventHandler(domainName, eventName);
     

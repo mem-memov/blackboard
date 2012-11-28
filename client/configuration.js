@@ -6,7 +6,11 @@
         Application: {
             pathToCommandHandlers: "/client/commandHandler",
             pathToEventHandlers: "/client/eventHandler",
-            mustShowEventsInConsole: true
+            mustShowEventsInConsole: false,
+            eventStore: {
+                domainName: "EventStore",
+                className: "EventStore"
+            }
         }
     }
 })
