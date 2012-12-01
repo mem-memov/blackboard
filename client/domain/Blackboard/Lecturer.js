@@ -47,7 +47,7 @@ o.knockWithHand = function() {
 }
 
 o.chooseAction = function() {
-    
+
     o.action = app.make(
         "LecturerDrawsWithChalkOnBoard", 
         {

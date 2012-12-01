@@ -16,7 +16,7 @@ o.mixins;
 o.load;
 o.makeClass;
 
-o.makeInstance = function(domainName, className, options, context) {
+o.makeInstance = function(domainName, className, options, context, replayEvents) {
 
     // define initialization options
     if (typeof options === "undefined") {

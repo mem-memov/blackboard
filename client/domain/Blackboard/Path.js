@@ -3,9 +3,13 @@ meta["public"] = ["addDot"];
 
 o.init = function(options) {
     
+    o.id = options.id;
+    o.dots = [];
+
 }
 
-o.dots = [];
+o.id;
+o.dots;
 
 o.applyDotAddedToPath = function(event) {
     

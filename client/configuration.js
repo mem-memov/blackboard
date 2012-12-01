@@ -1,7 +1,7 @@
 ({
     Application: {
         Factory: {
-            pathToDomains: "/client/domain"
+            pathToDomains: "/client/domain",
         },
         Application: {
             pathToCommandHandlers: "/client/commandHandler",

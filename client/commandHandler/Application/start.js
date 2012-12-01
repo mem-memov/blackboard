@@ -8,9 +8,11 @@ function(manager, command) {
         }
     );
         
-    var lecturer = manager.makeSingleton("Blackboard", "Lecturer");
-    var board = manager.makeSingleton("Blackboard", "Board");
-    var chalk = manager.makeSingleton("Blackboard", "Chalk");
+    var facade = manager.makeSingleton("Blackboard", "Facade");
+
+    var lecturer = facade.makeLecturer({id: 1});
+    var board = facade.makeBoard();
+    var chalk = facade.makeChalk();
     
     lecturer.face(board, chalk);
 

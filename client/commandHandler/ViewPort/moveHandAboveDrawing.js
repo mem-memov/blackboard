@@ -1,6 +1,8 @@
 function(manager, command) {
    
-    var lecturer = manager.makeSingleton("Blackboard", "Lecturer");
+    var facade = manager.makeSingleton("Blackboard", "Facade");
+
+    var lecturer = facade.makeLecturer({id: 1});
     
     lecturer.moveHand(command.getX(), command.getY());
     

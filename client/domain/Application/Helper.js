@@ -1,5 +1,7 @@
 meta["class"] = "Helper";
-meta["public"] = ["connect", "command", "make", "fire", "showMember", "hideMember"];
+meta["public"] = [
+    "connect", "command", "make", "fire", "showMember", "hideMember", "generate"
+];
 
 o.init = function(options) {
     
@@ -8,6 +10,7 @@ o.init = function(options) {
     o.issueCommand = options.issueCommand;
     o.makeInstance = options.makeInstance;
     o.fireEvent = options.fireEvent;
+    o.provideId = options.provideId;
     
 }
 
@@ -16,9 +19,11 @@ o.instance;
 o.meta;
 o.domainName;
 o.className;
+
 o.issueCommand;
 o.makeInstance;
 o.fireEvent;
+o.provideId;
 
 o.connect = function(base, instance, meta) {
     o.base = base;
@@ -48,4 +53,10 @@ o.fire = function(eventName, data) {
     }
     o.fireEvent(o.domainName, o.className, eventName, o.base, data);
 }
+
+o.generate = function() {
+    return o.provideId(o.domainName, o.className);
+}
+
+
 

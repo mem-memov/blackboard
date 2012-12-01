@@ -1,5 +1,5 @@
 meta["class"] = "EventStore";
-meta["public"] = ["addEvent"];
+meta["public"] = ["addEvent", "replayEvents"];
 
 o.init = function(options) {
     o.store = {};
@@ -23,5 +23,9 @@ o.addEvent = function(domainName, className, eventName, id, eventData) {
         eventName: eventName,
         eventData: eventData
     });
-    console.log(o.store);
+    //console.log(o.store);
+}
+
+o.replayEvents = function(domainName, className, base) {
+    
 }

@@ -18,7 +18,8 @@ o.init = function(options, configuration) {
             className: className,
             issueCommand: o.issueCommand,
             makeInstance: o.makeInstance,
-            fireEvent: o.fireEvent
+            fireEvent: o.fireEvent,
+            provideId: o.provideId
         });
 
         return options.makeInstance(domainName, className, instanceOptions, app);
@@ -28,19 +29,12 @@ o.init = function(options, configuration) {
 
     o.commandManager = {
         make: o.makeInstance,
-        makeSingleton: function(domainName, className, options) {
+        makeSingleton: o.makeSingleton
+    }
 
-            if (typeof o.singletons[domainName] === "undefined") {
-                o.singletons[domainName] = {};
-            }
-
-            if (typeof o.singletons[domainName][className] === "undefined") {
-                o.singletons[domainName][className] = o.makeInstance(domainName, className, options);
-            }
-            
-            return o.singletons[domainName][className];
-
-        }
+    o.eventManager = {
+        make: o.makeInstance,
+        makeSingleton: o.makeSingleton
     }
 
     o.issueCommand(
@@ -54,12 +48,14 @@ o.makeInstance;
 o.load;
 o.domainName;
 o.commandManager;
+o.eventManager;
 o.mustShowEventsInConsole;
 o.eventStore;
 
 o.singletons = {};
 o.commandHandlers = {};
 o.eventHandlers = {};
+o.ids = {};
 
 o.sendQuery = function(name, data, onQuery) {
     
@@ -158,5 +154,35 @@ o.provideEventHandler = function(domainName, eventName) {
     
     return o.eventHandlers[domainName][eventName];
     
+}
+
+o.provideId = function(domainName, className) {
+    
+    if (typeof o.ids[domainName] === "undefined") {
+        o.ids[domainName] = {};
+    }
+    
+    if (typeof o.ids[domainName][className] === "undefined") {
+        o.ids[domainName][className] = 0;
+    }
+    
+    o.ids[domainName][className]++;
+    
+    return o.ids[domainName][className];
+    
+}
+
+o.makeSingleton = function(domainName, className, options) {
+
+    if (typeof o.singletons[domainName] === "undefined") {
+        o.singletons[domainName] = {};
+    }
+
+    if (typeof o.singletons[domainName][className] === "undefined") {
+        o.singletons[domainName][className] = o.makeInstance(domainName, className, options);
+    }
+
+    return o.singletons[domainName][className];
+
 }
 
