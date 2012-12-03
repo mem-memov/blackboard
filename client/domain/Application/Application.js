@@ -114,7 +114,7 @@ o.fireEvent = function(domainName, className, eventName, base, data) {
         console.log(data);
     }
     
-    handle(event);
+    handle(o.eventManager, event);
     
 }
 

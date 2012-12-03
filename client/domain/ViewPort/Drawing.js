@@ -1,8 +1,12 @@
 meta["class"] = "Drawing";
+meta["public"] = ["addCurve", "draw"];
 
 o.init = function(options) {
+ 
+    o.curves = [];
 
     o.id = options.id;
+    o.curveFactory = options.curveFactory;
     
     o.setElementStyle();
     
@@ -10,6 +14,10 @@ o.init = function(options) {
 
 o.id;
 o.color = "#003300";
+o.curves;
+o.curveFactory;
+o.currentFocus;
+
 
 o.setElementStyle = function() {
     
@@ -25,12 +33,26 @@ o.setElementStyle = function() {
     
 }
 
-o.createCurve = function(options) {
+o.addCurve = function(x, y) {
 
-    var curve = o.curveCollection.createItem({
-        container: o.element
+    app.fire("curveAddedToDrawing", {
+        x: x,
+        y: y
     });
 
-    options.addOnDotHandler(curve.draw);
+}
+
+o.applyCurveAddedToDrawing = function(event) {
+    
+    var curve = o.curveFactory.make(event.getX(), event.getY(), o.id);
+    
+    o.currentFocus = curve;
+
+    o.curves.push(curve);
 
 }
+
+o.draw = function(x, y) {
+    o.currentFocus.draw(x, y);
+}
+

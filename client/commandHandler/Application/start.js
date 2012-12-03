@@ -8,19 +8,14 @@ function(manager, command) {
         }
     );
         
-    var drawing = manager.makeSingleton(
-        "ViewPort", 
-        "Drawing", 
-        {
-            id: 'panel'
-        }
-    );
+    var viewPortFacade = manager.makeSingleton("ViewPort", "Facade");
+    var drawing = viewPortFacade.makeDrawing('panel');
         
-    var facade = manager.makeSingleton("Blackboard", "Facade");
+    var blackboardFacade = manager.makeSingleton("Blackboard", "Facade");
 
-    var lecturer = facade.makeLecturer({id: 1});
-    var board = facade.makeBoard();
-    var chalk = facade.makeChalk();
+    var lecturer = blackboardFacade.makeLecturer({id: 1});
+    var board = blackboardFacade.makeBoard();
+    var chalk = blackboardFacade.makeChalk();
     
     lecturer.face(board, chalk);
 

@@ -1,13 +1,15 @@
 meta["class"] = "Board";
-meta["public"] = ["showPath"];
+meta["public"] = ["addPath"];
 
-o.init = function(o, options) {
-    
+o.init = function(options) {
+    o.paths = [];
 }
 
-o.showPath = function(path) {
+o.paths;
 
-    //o.pathCollection.updateItem(path);
+o.addPath = function(path) {
+
+    o.paths.push(path);
 
 };
 
