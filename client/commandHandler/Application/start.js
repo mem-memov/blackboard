@@ -1,5 +1,13 @@
 function(manager, command) {
     
+    var sensorPanel = manager.makeSingleton(
+        "Sensor", 
+        "Panel", 
+        {
+            id: 'panel'
+        }
+    );
+        
     var drawing = manager.makeSingleton(
         "ViewPort", 
         "Drawing", 
