@@ -16,6 +16,7 @@ function(manager, command) {
     var lecturer = blackboardFacade.makeLecturer({id: 1});
     var board = blackboardFacade.makeBoard();
     var chalk = blackboardFacade.makeChalk();
+    var tray = blackboardFacade.makeTray();
     
     lecturer.face(board, chalk);
 

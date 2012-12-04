@@ -5,8 +5,10 @@ meta["public"] = ["init"]
 o.init = function(options, configuration) {
 
     o.mustShowEventsInConsole = configuration.mustShowEventsInConsole;
+    o.mustShowCommandsInConsole = configuration.mustShowCommandsInConsole;
     o.domainName = options.domain;
     o.load = options.load;
+    o.isInstanceOf = options.isInstanceOf;
     o.pathToCommandHandlers = configuration.pathToCommandHandlers;
     o.pathToEventHandlers = configuration.pathToEventHandlers;
 
@@ -19,11 +21,14 @@ o.init = function(options, configuration) {
             issueCommand: o.issueCommand,
             makeInstance: o.makeInstance,
             fireEvent: o.fireEvent,
-            provideId: o.provideId
+            provideId: o.provideId,
+            instanceOf: options.instanceOf
         });
 
         return options.makeInstance(domainName, className, instanceOptions, app);
     }
+    
+    
 
     o.eventStore = o.makeInstance(configuration.eventStore.domainName, configuration.eventStore.className);
 
@@ -45,11 +50,13 @@ o.init = function(options, configuration) {
 }
 
 o.makeInstance;
+o.isInstanceOf;
 o.load;
 o.domainName;
 o.commandManager;
 o.eventManager;
 o.mustShowEventsInConsole;
+o.mustShowCommandsInConsole;
 o.eventStore;
 
 o.singletons = {};
@@ -77,6 +84,11 @@ o.issueCommand = function(domainName, commandName, data) {
             commandName: commandName
         }
     );
+        
+    if (o.mustShowCommandsInConsole) {
+        console.log(domainName + " issues " + commandName + " command with this data:");
+        console.log(data);
+    }
 
     var handle = o.provideCommandHandler(domainName, commandName);
 
@@ -185,4 +197,6 @@ o.makeSingleton = function(domainName, className, options) {
     return o.singletons[domainName][className];
 
 }
+
+
 

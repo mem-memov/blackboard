@@ -1,6 +1,6 @@
 meta["class"] = "Helper";
 meta["public"] = [
-    "connect", "command", "make", "fire", "showMember", "hideMember", "generate"
+    "connect", "command", "make", "fire", "showMember", "hideMember", "generate", "of"
 ];
 
 o.init = function(options) {
@@ -11,6 +11,7 @@ o.init = function(options) {
     o.makeInstance = options.makeInstance;
     o.fireEvent = options.fireEvent;
     o.provideId = options.provideId;
+    o.instanceOf = options.instanceOf;
     
 }
 
@@ -56,6 +57,12 @@ o.fire = function(eventName, data) {
 
 o.generate = function() {
     return o.provideId(o.domainName, o.className);
+}
+
+o.of = function(className, instance) {
+ 
+    return o.instanceOf(o.domainName, className, instance);
+    
 }
 
 

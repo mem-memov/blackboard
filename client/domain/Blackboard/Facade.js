@@ -1,6 +1,6 @@
 meta["class"] = "Facade";
 meta["category"] = "facade";
-meta["public"] = ["makeLecturer", "makeChalk", "makeBoard"];
+meta["public"] = ["makeLecturer", "makeChalk", "makeBoard", "makeTray"];
 
 o.init = function(options, configuration) {
     
@@ -45,6 +45,10 @@ o.makePathFactory = function() {
 
 o.makeBoard = function() {
     return app.make("Board");
+}
+
+o.makeTray = function() {
+    return app.make("Tray");
 }
 
 o.makeUniqueInstance = function(className, instanceOptions) {

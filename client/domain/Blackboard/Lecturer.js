@@ -42,7 +42,7 @@ o.moveHand = function(x, y) {
 
 }
 
-o.knockWithHand = function() {
+o.knockWithHand = function(x, y) {
     
 }
 

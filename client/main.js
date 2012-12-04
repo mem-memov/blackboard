@@ -175,7 +175,8 @@
     var application = factory.makeInstance("Application", "Application", {
         load: loader.load,
         domain: "Application",
-        makeInstance: factory.makeInstance
+        makeInstance: factory.makeInstance,
+        instanceOf: factory.instanceOf
     });
 
 })({
