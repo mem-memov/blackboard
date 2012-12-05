@@ -7,14 +7,15 @@ o.init = function(options) {
 
 o.isTouching;
 o.facedThing;
+o.toolTray;
 o.tool;
 o.action;
 
-o.face = function(thing, tool) {
+o.face = function(thing, toolTray) {
 
     o.facedThing = thing;
 
-    o.tool = tool;
+    o.toolTray = toolTray;
 
     o.chooseAction();
 
@@ -44,9 +45,18 @@ o.moveHand = function(x, y) {
 
 o.knockWithHand = function(x, y) {
     
+    o.action = app.make(
+        "LecturerTakesToolFromTray", 
+        {
+            
+        }
+    );
+    
 }
 
 o.chooseAction = function() {
+    
+    o.tool = o.toolTray.giveTool("chalk");
 
     o.action = app.make(
         "LecturerDrawsWithChalkOnBoard", 

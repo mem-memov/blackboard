@@ -47,8 +47,8 @@ o.makeBoard = function() {
     return app.make("Board");
 }
 
-o.makeTray = function() {
-    return app.make("Tray");
+o.makeTray = function(trayOptions) {
+    return app.make("Tray", trayOptions);
 }
 
 o.makeUniqueInstance = function(className, instanceOptions) {
